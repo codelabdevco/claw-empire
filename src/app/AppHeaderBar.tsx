@@ -153,18 +153,9 @@ export default function AppHeaderBar({
           </span>
           {decisionInboxCount > 0 && <span className="header-decision-badge">{decisionInboxCount}</span>}
         </button>
-        <button onClick={onOpenAgentStatus} className="header-action-btn header-action-btn-secondary mobile-hidden">
-          &#x1F6E0; {agentStatusLabel}
-        </button>
-        <button onClick={onOpenReportHistory} className="header-action-btn header-action-btn-secondary mobile-hidden">
-          {reportLabel}
-        </button>
         <button onClick={onOpenAnnouncement} className="header-action-btn header-action-btn-secondary">
           <span className="sm:hidden">📢</span>
           <span className="hidden sm:inline">{announcementLabel}</span>
-        </button>
-        <button onClick={onOpenRoomManager} className="header-action-btn header-action-btn-secondary mobile-hidden">
-          {roomManagerLabel}
         </button>
         <button
           onClick={onToggleTheme}
@@ -210,7 +201,7 @@ export default function AppHeaderBar({
             )}
           </span>
         </button>
-        <div className="relative sm:hidden">
+        <div className="relative">
           <button
             onClick={onToggleMobileHeaderMenu}
             className="inline-flex h-8 w-8 items-center justify-center rounded-lg transition"

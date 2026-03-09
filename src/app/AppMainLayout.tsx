@@ -1,6 +1,6 @@
 import { useCallback, useMemo, type ReactNode } from "react";
 import Sidebar from "../components/Sidebar";
-import OfficeView from "../components/OfficeView";
+import CleanOfficeFloor from "../components/CleanOfficeFloor";
 import Dashboard from "../components/Dashboard";
 import TaskBoard from "../components/TaskBoard";
 import AgentManager from "../components/AgentManager";
@@ -472,7 +472,7 @@ export default function AppMainLayout({
 
           <div className="p-3 sm:p-4 lg:p-6">
             {view === "office" && (
-              <OfficeView
+              <CleanOfficeFloor
                 departments={officePresentation.departments}
                 agents={officePresentation.agents}
                 tasks={tasks}

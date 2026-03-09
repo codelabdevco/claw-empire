@@ -182,23 +182,23 @@ export default function Sidebar({ currentView, onChangeView, departments, agents
 
       {/* Quick stats */}
       {!collapsed && (
-        <div className="px-2 py-1.5 grid grid-cols-2 gap-1" style={{ borderTop: "1px solid var(--th-border)" }}>
+        <div className="px-2 py-2 grid grid-cols-2 gap-1.5" style={{ borderTop: "1px solid var(--th-border)" }}>
           {([
             { icon: "🤖", label: tr("직원", "Staff", "社員", "员工"), val: `${totalAgents}` },
             { icon: "⚡", label: tr("작업중", "Working", "稼働中", "工作中"), val: `${workingCount}`, highlight: workingCount > 0 },
-            { icon: "📋", label: tr("진행", "In Progress", "進行中", "进行中"), val: `${inProgress}`, highlight: inProgress > 0 },
+            { icon: "📋", label: tr("진행", "Active", "進行中", "进行中"), val: `${inProgress}`, highlight: inProgress > 0 },
             { icon: "✅", label: tr("완료", "Done", "完了", "完成"), val: `${doneCount}/${tasks.length}` },
           ] as const).map((s) => (
             <div
               key={s.label}
-              className="flex items-center gap-1 rounded px-1.5 py-0.5"
+              className="flex items-center gap-1.5 rounded-lg px-2 py-1"
               style={{ background: "var(--th-bg-surface)", border: "1px solid var(--th-border)" }}
             >
-              <span className="text-[10px]">{s.icon}</span>
+              <span className="text-xs">{s.icon}</span>
               <div className="min-w-0">
-                <div className="text-[7px] leading-tight truncate" style={{ color: "var(--th-text-muted)" }}>{s.label}</div>
+                <div className="text-[8px] leading-tight truncate" style={{ color: "var(--th-text-muted)" }}>{s.label}</div>
                 <div
-                  className={`text-[11px] font-bold leading-tight ${s.highlight ? "text-blue-400" : ""}`}
+                  className={`text-xs font-bold leading-tight ${s.highlight ? "text-blue-400" : ""}`}
                   style={s.highlight ? undefined : { color: "var(--th-text-secondary)" }}
                 >
                   {s.val}
