@@ -214,6 +214,7 @@ export default function AppOverlays({
           onThemeChange={onRoomThemeChange}
           onClose={onCloseRoomManager}
           language={uiLanguage}
+          agents={agents}
         />
       )}
     </>

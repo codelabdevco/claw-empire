@@ -111,6 +111,15 @@ export function useAppLabels({
       },
       ...departments,
       {
+        id: "meetingRoom",
+        name: pickLang(uiLanguage, {
+          ko: "회의실",
+          en: "Meeting Room",
+          ja: "会議室",
+          zh: "会议室",
+        }),
+      },
+      {
         id: "breakRoom",
         name: pickLang(uiLanguage, {
           ko: "휴게실",

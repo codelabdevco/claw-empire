@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 
 /* ================================================================== */
 /*  Types                                                               */
@@ -13,6 +13,7 @@ export interface OfficeRoomManagerProps {
   onActiveDeptChange?: (deptId: string | null) => void;
   onClose: () => void;
   language: "ko" | "en" | "ja" | "zh";
+  agents?: Array<{ id: string; department_id: string; status: string }>;
 }
 
 /* ================================================================== */
@@ -27,12 +28,19 @@ const DEFAULT_THEMES: Record<string, DeptTheme> = {
   qa: { floor1: 0xf0cbcb, floor2: 0xedc0c0, wall: 0xae7979, accent: 0xd46a6a },
   devsecops: { floor1: 0xf0d5c5, floor2: 0xedcdba, wall: 0xae8871, accent: 0xd4885a },
   ceoOffice: { floor1: 0xe5d9b9, floor2: 0xdfd0a8, wall: 0x998243, accent: 0xa77d0c },
+  meetingRoom: { floor1: 0xd4e6e8, floor2: 0xc8dfe2, wall: 0x6a9ca0, accent: 0x4a8a90 },
   breakRoom: { floor1: 0xf7e2b7, floor2: 0xf6dead, wall: 0xa99c83, accent: 0xf0c878 },
 };
 
 const DEFAULT_TONE = 50;
 
-const labels = {
+/** IDs that represent special rooms (not real departments). */
+const SPECIAL_ROOM_IDS = new Set(["ceoOffice", "meetingRoom", "breakRoom"]);
+
+/** Known department-slug → theme mapping. Only these are rendered as dept cards. */
+const KNOWN_DEPT_SLUGS = new Set(["dev", "design", "planning", "operations", "qa", "devsecops"]);
+
+const labels: Record<string, Record<string, string>> = {
   title: { ko: "사무실 관리", en: "Office Manager", ja: "オフィス管理", zh: "办公室管理" },
   accent: { ko: "메인 색상", en: "Main Color", ja: "メインカラー", zh: "主色调" },
   tone: { ko: "톤 (밝기)", en: "Tone (Brightness)", ja: "トーン（明るさ）", zh: "色调（亮度）" },
@@ -40,6 +48,8 @@ const labels = {
   resetAll: { ko: "전체 초기화", en: "Reset All", ja: "全てリセット", zh: "全部重置" },
   close: { ko: "닫기", en: "Close", ja: "閉じる", zh: "关闭" },
   presets: { ko: "프리셋", en: "Presets", ja: "プリセット", zh: "预设" },
+  specialRooms: { ko: "특별 공간", en: "Special Rooms", ja: "特別ルーム", zh: "特殊房间" },
+  deptStatus: { ko: "부서 현황", en: "Department Status", ja: "部署状況", zh: "部门状态" },
 };
 
 /* ================================================================== */
@@ -247,6 +257,7 @@ export default function OfficeRoomManager({
   onActiveDeptChange,
   onClose,
   language,
+  agents,
 }: OfficeRoomManagerProps) {
   const [deptStates, setDeptStates] = useState<Record<string, DeptState>>(() => {
     const result: Record<string, DeptState> = {};
@@ -256,51 +267,47 @@ export default function OfficeRoomManager({
     return result;
   });
 
-  const buildAndEmit = useCallback(
-    (next: Record<string, DeptState>) => {
-      const themes: Record<string, DeptTheme> = {};
-      for (const [id, s] of Object.entries(next)) {
-        themes[id] = deriveTheme(s.accent, s.tone);
-      }
-      onThemeChange(themes);
-    },
-    [onThemeChange],
-  );
+  /* Stable ref for onThemeChange to avoid infinite effect loops */
+  const onThemeChangeRef = useRef(onThemeChange);
+  onThemeChangeRef.current = onThemeChange;
+  const isFirstRender = useRef(true);
+
+  /* Emit derived themes to parent whenever deptStates changes (skip initial mount) */
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const themes: Record<string, DeptTheme> = {};
+    for (const [id, s] of Object.entries(deptStates)) {
+      themes[id] = deriveTheme(s.accent, s.tone);
+    }
+    onThemeChangeRef.current(themes);
+  }, [deptStates]);
 
   const updateDept = useCallback(
     (deptId: string, patch: Partial<DeptState>) => {
-      setDeptStates((prev) => {
-        const next = { ...prev, [deptId]: { ...prev[deptId], ...patch } };
-        buildAndEmit(next);
-        return next;
-      });
+      setDeptStates((prev) => ({ ...prev, [deptId]: { ...prev[deptId], ...patch } }));
     },
-    [buildAndEmit],
+    [],
   );
 
-  const resetDept = useCallback(
-    (deptId: string) => {
-      const def = DEFAULT_THEMES[deptId];
-      if (!def) return;
-      const next: DeptState = { accent: def.accent, tone: inferTone(def) };
-      setDeptStates((prev) => {
-        const updated = { ...prev, [deptId]: next };
-        buildAndEmit(updated);
-        return updated;
-      });
-    },
-    [buildAndEmit],
-  );
+  const resetDept = useCallback((deptId: string) => {
+    const def = DEFAULT_THEMES[deptId];
+    if (!def) return;
+    setDeptStates((prev) => ({ ...prev, [deptId]: { accent: def.accent, tone: inferTone(def) } }));
+  }, []);
 
   const resetAll = useCallback(() => {
-    const next: Record<string, DeptState> = {};
-    for (const dept of departments) {
-      const def = DEFAULT_THEMES[dept.id];
-      next[dept.id] = def ? { accent: def.accent, tone: inferTone(def) } : { accent: 0x5a9fd4, tone: DEFAULT_TONE };
-    }
-    setDeptStates(next);
-    buildAndEmit(next);
-  }, [departments, buildAndEmit]);
+    setDeptStates((prev) => {
+      const next: Record<string, DeptState> = {};
+      for (const key of Object.keys(prev)) {
+        const def = DEFAULT_THEMES[key];
+        next[key] = def ? { accent: def.accent, tone: inferTone(def) } : { accent: 0x5a9fd4, tone: DEFAULT_TONE };
+      }
+      return next;
+    });
+  }, []);
 
   const activateDept = useCallback(
     (deptId: string) => {
@@ -310,6 +317,30 @@ export default function OfficeRoomManager({
   );
 
   useEffect(() => () => onActiveDeptChange?.(null), [onActiveDeptChange]);
+
+  /* Split departments into real office depts vs special rooms */
+  const officeDepts = useMemo(
+    () => departments.filter((d) => KNOWN_DEPT_SLUGS.has(d.id)),
+    [departments],
+  );
+  const specialRooms = useMemo(
+    () => departments.filter((d) => SPECIAL_ROOM_IDS.has(d.id)),
+    [departments],
+  );
+
+  /* Department status: compute working / total per department */
+  const deptStatusMap = useMemo(() => {
+    if (!agents || agents.length === 0) return null;
+    const map: Record<string, { total: number; working: number }> = {};
+    for (const agent of agents) {
+      const deptId = agent.department_id;
+      if (!deptId) continue;
+      if (!map[deptId]) map[deptId] = { total: 0, working: 0 };
+      map[deptId].total += 1;
+      if (agent.status === "working") map[deptId].working += 1;
+    }
+    return map;
+  }, [agents]);
 
   return (
     /* Overlay */
@@ -336,24 +367,79 @@ export default function OfficeRoomManager({
           </button>
         </div>
 
-        {/* Scrollable dept list */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-          {departments.map((dept) => {
-            const state = deptStates[dept.id] ?? { accent: 0x5a9fd4, tone: DEFAULT_TONE };
-            return (
-              <DeptCard
-                key={dept.id}
-                deptId={dept.id}
-                deptName={dept.name}
-                state={state}
-                language={language}
-                onActivate={() => activateDept(dept.id)}
-                onAccentChange={(accent) => updateDept(dept.id, { accent })}
-                onToneChange={(tone) => updateDept(dept.id, { tone })}
-                onReset={() => resetDept(dept.id)}
-              />
-            );
-          })}
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+          {/* ── Department Status ── */}
+          {deptStatusMap && officeDepts.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                {labels.deptStatus[language]}
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
+                {officeDepts.map((dept) => {
+                  const stat = deptStatusMap[dept.id];
+                  if (!stat) return null;
+                  return (
+                    <div
+                      key={dept.id}
+                      className="bg-slate-800/60 border border-slate-700/50 rounded-md px-3 py-2 flex items-center justify-between gap-2"
+                    >
+                      <span className="text-xs text-slate-300 truncate">{dept.name}</span>
+                      <span className="text-xs font-mono shrink-0">
+                        <span className="text-emerald-400">{stat.working}</span>
+                        <span className="text-slate-500">/{stat.total}</span>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── Department Theme Cards ── */}
+          <div className="space-y-3">
+            {officeDepts.map((dept) => {
+              const state = deptStates[dept.id] ?? { accent: 0x5a9fd4, tone: DEFAULT_TONE };
+              return (
+                <DeptCard
+                  key={dept.id}
+                  deptId={dept.id}
+                  deptName={dept.name}
+                  state={state}
+                  language={language}
+                  onActivate={() => activateDept(dept.id)}
+                  onAccentChange={(accent) => updateDept(dept.id, { accent })}
+                  onToneChange={(tone) => updateDept(dept.id, { tone })}
+                  onReset={() => resetDept(dept.id)}
+                />
+              );
+            })}
+          </div>
+
+          {/* ── Special Rooms ── */}
+          {specialRooms.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider pt-2 border-t border-slate-700">
+                {labels.specialRooms[language]}
+              </h3>
+              {specialRooms.map((room) => {
+                const state = deptStates[room.id] ?? { accent: 0x5a9fd4, tone: DEFAULT_TONE };
+                return (
+                  <DeptCard
+                    key={room.id}
+                    deptId={room.id}
+                    deptName={room.name}
+                    state={state}
+                    language={language}
+                    onActivate={() => activateDept(room.id)}
+                    onAccentChange={(accent) => updateDept(room.id, { accent })}
+                    onToneChange={(tone) => updateDept(room.id, { tone })}
+                    onReset={() => resetDept(room.id)}
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Footer */}

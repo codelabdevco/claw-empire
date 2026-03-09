@@ -11,7 +11,7 @@ import {
   SLOT_W,
   detachNode,
 } from "./model";
-import { DEFAULT_BREAK_THEME, DEFAULT_CEO_THEME, applyOfficeThemeMode } from "./themes-locale";
+import { DEFAULT_BREAK_THEME, DEFAULT_CEO_THEME, DEFAULT_MEETING_THEME, applyOfficeThemeMode } from "./themes-locale";
 import type { BuildOfficeSceneContext } from "./buildScene-types";
 import { buildCeoAndHallway } from "./buildScene-ceo-hallway";
 import { buildDepartmentRooms } from "./buildScene-departments";
@@ -116,6 +116,7 @@ export function buildOfficeScene(context: BuildOfficeSceneContext): void {
   const isDark = themeRef.current === "dark";
   applyOfficeThemeMode(isDark);
   const ceoTheme = customThemes?.ceoOffice ?? DEFAULT_CEO_THEME;
+  const meetingTheme = customThemes?.meetingRoom ?? DEFAULT_MEETING_THEME;
   const breakTheme = customThemes?.breakRoom ?? DEFAULT_BREAK_THEME;
 
   const spriteMap = buildSpriteMap(agents);
@@ -171,6 +172,7 @@ export function buildOfficeScene(context: BuildOfficeSceneContext): void {
     isDark,
     activeLocale,
     ceoTheme,
+    meetingTheme,
     activeMeetingTaskId: activeMeetingTaskIdRef.current,
     onOpenActiveMeetingMinutes: meetingMinutesOpenRef.current,
     agents,

@@ -30,6 +30,7 @@ interface BuildCeoAndHallwayParams {
   isDark: boolean;
   activeLocale: SupportedLocale;
   ceoTheme: RoomTheme;
+  meetingTheme: RoomTheme;
   activeMeetingTaskId: string | null;
   onOpenActiveMeetingMinutes?: (taskId: string) => void;
   agents: Agent[];
@@ -115,6 +116,7 @@ export function buildCeoAndHallway({
   isDark,
   activeLocale,
   ceoTheme,
+  meetingTheme,
   activeMeetingTaskId,
   onOpenActiveMeetingMinutes,
   agents,
@@ -226,12 +228,12 @@ export function buildCeoAndHallway({
   /* ================================================================ */
   /*  ROOM 2 — Meeting Room (right)                                   */
   /* ================================================================ */
-  drawRoomBase(ceoLayer, meetRoomX, roomY, meetRoomW, roomH, ceoTheme);
-  drawRoomSign(ceoLayer, meetRoomX, roomY, meetRoomW, pickLocale(activeLocale, LOCALE_TEXT.meetingRoom), ceoTheme);
+  drawRoomBase(ceoLayer, meetRoomX, roomY, meetRoomW, roomH, meetingTheme);
+  drawRoomSign(ceoLayer, meetRoomX, roomY, meetRoomW, pickLocale(activeLocale, LOCALE_TEXT.meetingRoom), meetingTheme);
 
   // Ceiling lights + windows + bunting
-  drawCeilingLight(ceoLayer, meetRoomX + meetRoomW / 3, roomY + 8, ceoTheme.accent);
-  drawCeilingLight(ceoLayer, meetRoomX + (meetRoomW * 2) / 3, roomY + 8, ceoTheme.accent);
+  drawCeilingLight(ceoLayer, meetRoomX + meetRoomW / 3, roomY + 8, meetingTheme.accent);
+  drawCeilingLight(ceoLayer, meetRoomX + (meetRoomW * 2) / 3, roomY + 8, meetingTheme.accent);
   drawWindow(ceoLayer, meetRoomX + 36, roomY + 24);
   drawWindow(ceoLayer, meetRoomX + meetRoomW - 36, roomY + 24);
   drawBunting(
@@ -239,8 +241,8 @@ export function buildCeoAndHallway({
     meetRoomX + 10,
     roomY + 10,
     Math.max(60, meetRoomW - 20),
-    blendColor(ceoTheme.accent, 0xffffff, 0.2),
-    blendColor(ceoTheme.wall, ceoTheme.accent, 0.45),
+    blendColor(meetingTheme.accent, 0xffffff, 0.2),
+    blendColor(meetingTheme.wall, meetingTheme.accent, 0.45),
     0.7,
   );
 
@@ -331,8 +333,8 @@ export function buildCeoAndHallway({
 
   // ── Meeting room floor area ──
   drawRug(ceoLayer, mtX + mtW / 2, mtY + mtH / 2, mtW + 44, mtH + 54, isDark ? 0x4a3020 : 0xc8a060);
-  drawAmbientGlow(ceoLayer, meetRoomX + meetRoomW / 2, roomY + roomH / 2, meetRoomW * 0.35, ceoTheme.accent, 0.08);
-  drawAmbientGlow(ceoLayer, meetRoomX + meetRoomW / 2, roomY + roomH - 30, meetRoomW * 0.2, ceoTheme.accent, 0.04);
+  drawAmbientGlow(ceoLayer, meetRoomX + meetRoomW / 2, roomY + roomH / 2, meetRoomW * 0.35, meetingTheme.accent, 0.08);
+  drawAmbientGlow(ceoLayer, meetRoomX + meetRoomW / 2, roomY + roomH - 30, meetRoomW * 0.2, meetingTheme.accent, 0.04);
 
   // ── Meeting room bottom decorations ──
   drawWaterCooler(ceoLayer, meetRoomX + 12, roomY + roomH - 48);
