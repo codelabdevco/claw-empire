@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef, type ReactNode } from "react";
 
 /* ================================================================== */
 /*  Types                                                               */
@@ -127,121 +127,160 @@ function initDeptState(deptId: string, customThemes: Record<string, DeptTheme>):
 /*  Sub-component: DeptCard                                             */
 /* ================================================================== */
 
+/* ── Chevron icon ── */
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${open ? "rotate-90" : ""}`}
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path
+        fillRule="evenodd"
+        d="M7.21 14.77a.75.75 0 0 1 .02-1.06L11.168 10 7.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+}
+
+/* ── Color preview bar (compact, reusable) ── */
+function ColorBar({ theme, small }: { theme: DeptTheme; small?: boolean }) {
+  const h = small ? "h-3" : "h-5";
+  return (
+    <div className={`flex gap-px ${h} rounded overflow-hidden`}>
+      <div className="flex-1" style={{ backgroundColor: numToHex(theme.floor1) }} />
+      <div className="flex-1" style={{ backgroundColor: numToHex(theme.floor2) }} />
+      <div className="flex-1" style={{ backgroundColor: numToHex(theme.wall) }} />
+      <div className="w-5 flex-none" style={{ backgroundColor: numToHex(theme.accent) }} />
+    </div>
+  );
+}
+
 interface DeptCardProps {
   deptId: string;
   deptName: string;
   state: DeptState;
   language: "ko" | "en" | "ja" | "zh";
+  expanded: boolean;
+  onToggle: () => void;
   onActivate: () => void;
   onAccentChange: (accent: number) => void;
   onToneChange: (tone: number) => void;
   onReset: () => void;
+  /** Optional status badge shown in collapsed row */
+  statusBadge?: ReactNode;
 }
 
 function DeptCard({
-  deptId,
   deptName,
   state,
   language,
+  expanded,
+  onToggle,
   onActivate,
   onAccentChange,
   onToneChange,
   onReset,
+  statusBadge,
 }: DeptCardProps) {
   const theme = deriveTheme(state.accent, state.tone);
   const presets = generateTonePresets(state.accent);
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 space-y-3">
-      {/* Header row */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-slate-100">{deptName}</span>
-        <button
-          onClick={() => {
-            onActivate();
-            onReset();
-          }}
-          className="text-xs text-slate-400 hover:text-slate-200 px-2 py-0.5 rounded border border-slate-600 hover:border-slate-400 transition-colors"
-        >
-          {labels.reset[language]}
-        </button>
-      </div>
+    <div className="bg-slate-800/70 border border-slate-700/60 rounded-lg overflow-hidden">
+      {/* ── Collapsed header row (always visible) ── */}
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-slate-700/40 transition-colors"
+      >
+        <ChevronIcon open={expanded} />
+        <span className="text-sm font-medium text-slate-100 flex-1 text-left truncate">{deptName}</span>
+        {statusBadge}
+        <div className="w-20 shrink-0">
+          <ColorBar theme={theme} small />
+        </div>
+      </button>
 
-      {/* Preview swatch */}
-      <div className="flex gap-1 h-6 rounded overflow-hidden border border-slate-600">
-        <div className="flex-1" style={{ backgroundColor: numToHex(theme.floor1) }} />
-        <div className="flex-1" style={{ backgroundColor: numToHex(theme.floor2) }} />
-        <div className="flex-1" style={{ backgroundColor: numToHex(theme.wall) }} />
-        <div className="w-6 flex-none" style={{ backgroundColor: numToHex(theme.accent) }} />
-      </div>
+      {/* ── Expanded editor panel ── */}
+      {expanded && (
+        <div className="px-3 pb-3 pt-1 space-y-2.5 border-t border-slate-700/40">
+          {/* Full color preview */}
+          <ColorBar theme={theme} />
 
-      {/* Preset palette */}
-      <div className="space-y-1">
-        <span className="text-xs text-slate-400">{labels.presets[language]}</span>
-        <div className="flex gap-1.5 flex-wrap">
-          {presets.map((preset) => (
+          {/* Presets row */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-slate-500 uppercase tracking-wider shrink-0">
+              {labels.presets[language]}
+            </span>
+            <div className="flex gap-1 flex-wrap">
+              {presets.map((preset) => (
+                <button
+                  key={preset.tone}
+                  onClick={() => {
+                    onActivate();
+                    onToneChange(preset.tone);
+                  }}
+                  title={`Tone ${preset.tone}`}
+                  className="w-4 h-4 rounded-full border-[1.5px] transition-transform hover:scale-125 focus:outline-none"
+                  style={{
+                    backgroundColor: numToHex(preset.swatch),
+                    borderColor: Math.abs(state.tone - preset.tone) <= 2 ? "#fff" : "transparent",
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Accent picker + Tone slider (compact row) */}
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={numToHex(state.accent)}
+              onChange={(e) => {
+                onActivate();
+                onAccentChange(hexToNum(e.target.value));
+              }}
+              onInput={(e) => {
+                onActivate();
+                onAccentChange(hexToNum((e.target as HTMLInputElement).value));
+              }}
+              className="w-7 h-7 rounded cursor-pointer border border-slate-600 bg-transparent p-0 shrink-0"
+            />
+            <span className="text-[10px] text-slate-500 font-mono shrink-0">{numToHex(state.accent)}</span>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={state.tone}
+              onChange={(e) => {
+                onActivate();
+                onToneChange(Number(e.target.value));
+              }}
+              onInput={(e) => {
+                onActivate();
+                onToneChange(Number((e.target as HTMLInputElement).value));
+              }}
+              className="flex-1 accent-slate-400 h-1 cursor-pointer"
+            />
+            <span className="text-[10px] text-slate-500 tabular-nums w-5 text-right">{state.tone}</span>
+          </div>
+
+          {/* Reset button */}
+          <div className="flex justify-end">
             <button
-              key={preset.tone}
               onClick={() => {
                 onActivate();
-                onToneChange(preset.tone);
+                onReset();
               }}
-              title={`Tone ${preset.tone}`}
-              className="w-5 h-5 rounded-full border-2 transition-transform hover:scale-110 focus:outline-none"
-              style={{
-                backgroundColor: numToHex(preset.swatch),
-                borderColor: Math.abs(state.tone - preset.tone) <= 2 ? "#fff" : "transparent",
-              }}
-            />
-          ))}
+              className="text-[10px] text-slate-500 hover:text-slate-300 px-2 py-0.5 rounded border border-slate-700 hover:border-slate-500 transition-colors"
+            >
+              {labels.reset[language]}
+            </button>
+          </div>
         </div>
-      </div>
-
-      {/* Accent color picker */}
-      <div className="flex items-center gap-3">
-        <label className="text-xs text-slate-400 w-20 shrink-0">{labels.accent[language]}</label>
-        <input
-          type="color"
-          value={numToHex(state.accent)}
-          onChange={(e) => {
-            onActivate();
-            onAccentChange(hexToNum(e.target.value));
-          }}
-          onInput={(e) => {
-            onActivate();
-            onAccentChange(hexToNum((e.target as HTMLInputElement).value));
-          }}
-          className="w-8 h-8 rounded cursor-pointer border border-slate-600 bg-transparent p-0"
-        />
-        <span className="text-xs text-slate-500 font-mono">{numToHex(state.accent)}</span>
-      </div>
-
-      {/* Tone slider */}
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <label className="text-xs text-slate-400">{labels.tone[language]}</label>
-          <span className="text-xs text-slate-500">{state.tone}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500">Light</span>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            value={state.tone}
-            onChange={(e) => {
-              onActivate();
-              onToneChange(Number(e.target.value));
-            }}
-            onInput={(e) => {
-              onActivate();
-              onToneChange(Number((e.target as HTMLInputElement).value));
-            }}
-            className="flex-1 accent-slate-400 h-1.5 cursor-pointer"
-          />
-          <span className="text-xs text-slate-500">Dark</span>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -266,6 +305,10 @@ export default function OfficeRoomManager({
     }
     return result;
   });
+
+  /** Track which card is expanded (accordion – only one at a time) */
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const toggleCard = useCallback((id: string) => setExpandedId((prev) => (prev === id ? null : id)), []);
 
   /* Stable ref for onThemeChange to avoid infinite effect loops */
   const onThemeChangeRef = useRef(onThemeChange);
@@ -342,86 +385,77 @@ export default function OfficeRoomManager({
     return map;
   }, [agents]);
 
+  /** Small inline status badge for collapsed card rows */
+  const statusBadge = useCallback(
+    (deptId: string) => {
+      if (!deptStatusMap) return undefined;
+      const stat = deptStatusMap[deptId];
+      if (!stat) return undefined;
+      return (
+        <span className="text-[10px] font-mono tabular-nums shrink-0 text-slate-500">
+          <span className={stat.working > 0 ? "text-emerald-400" : ""}>{stat.working}</span>/{stat.total}
+        </span>
+      );
+    },
+    [deptStatusMap],
+  );
+
   return (
     /* Overlay */
     <div
       className="fixed inset-0 z-50 flex items-stretch justify-end"
-      style={{ backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)", backgroundColor: "rgba(0,0,0,0.5)" }}
+      style={{ backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)", backgroundColor: "rgba(0,0,0,0.45)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       {/* Panel */}
-      <div className="w-full md:max-w-md bg-slate-900 flex flex-col h-full shadow-2xl border-l border-slate-700">
+      <div className="w-full md:max-w-sm bg-slate-900 flex flex-col h-full shadow-2xl border-l border-slate-700/80">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700 shrink-0">
-          <h2 className="text-base font-semibold text-slate-100">{labels.title[language]}</h2>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700/80 shrink-0">
+          <h2 className="text-sm font-semibold text-slate-100">{labels.title[language]}</h2>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-100 transition-colors w-8 h-8 flex items-center justify-center rounded hover:bg-slate-700"
+            className="text-slate-400 hover:text-slate-100 transition-colors w-7 h-7 flex items-center justify-center rounded hover:bg-slate-700"
             aria-label={labels.close[language]}
           >
-            <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+            <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
               <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
             </svg>
           </button>
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-          {/* ── Department Status ── */}
-          {deptStatusMap && officeDepts.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                {labels.deptStatus[language]}
-              </h3>
-              <div className="grid grid-cols-2 gap-2">
-                {officeDepts.map((dept) => {
-                  const stat = deptStatusMap[dept.id];
-                  if (!stat) return null;
-                  return (
-                    <div
-                      key={dept.id}
-                      className="bg-slate-800/60 border border-slate-700/50 rounded-md px-3 py-2 flex items-center justify-between gap-2"
-                    >
-                      <span className="text-xs text-slate-300 truncate">{dept.name}</span>
-                      <span className="text-xs font-mono shrink-0">
-                        <span className="text-emerald-400">{stat.working}</span>
-                        <span className="text-slate-500">/{stat.total}</span>
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* ── Department Theme Cards ── */}
-          <div className="space-y-3">
-            {officeDepts.map((dept) => {
-              const state = deptStates[dept.id] ?? { accent: 0x5a9fd4, tone: DEFAULT_TONE };
-              return (
-                <DeptCard
-                  key={dept.id}
-                  deptId={dept.id}
-                  deptName={dept.name}
-                  state={state}
-                  language={language}
-                  onActivate={() => activateDept(dept.id)}
-                  onAccentChange={(accent) => updateDept(dept.id, { accent })}
-                  onToneChange={(tone) => updateDept(dept.id, { tone })}
-                  onReset={() => resetDept(dept.id)}
-                />
-              );
-            })}
-          </div>
+        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1.5">
+          {/* ── Department Cards (accordion) ── */}
+          {officeDepts.map((dept) => {
+            const state = deptStates[dept.id] ?? { accent: 0x5a9fd4, tone: DEFAULT_TONE };
+            return (
+              <DeptCard
+                key={dept.id}
+                deptId={dept.id}
+                deptName={dept.name}
+                state={state}
+                language={language}
+                expanded={expandedId === dept.id}
+                onToggle={() => toggleCard(dept.id)}
+                onActivate={() => activateDept(dept.id)}
+                onAccentChange={(accent) => updateDept(dept.id, { accent })}
+                onToneChange={(tone) => updateDept(dept.id, { tone })}
+                onReset={() => resetDept(dept.id)}
+                statusBadge={statusBadge(dept.id)}
+              />
+            );
+          })}
 
           {/* ── Special Rooms ── */}
           {specialRooms.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider pt-2 border-t border-slate-700">
-                {labels.specialRooms[language]}
-              </h3>
+            <>
+              <div className="pt-1.5">
+                <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-1 pb-1 border-t border-slate-700/50 pt-2">
+                  {labels.specialRooms[language]}
+                </h3>
+              </div>
               {specialRooms.map((room) => {
                 const state = deptStates[room.id] ?? { accent: 0x5a9fd4, tone: DEFAULT_TONE };
                 return (
@@ -431,6 +465,8 @@ export default function OfficeRoomManager({
                     deptName={room.name}
                     state={state}
                     language={language}
+                    expanded={expandedId === room.id}
+                    onToggle={() => toggleCard(room.id)}
                     onActivate={() => activateDept(room.id)}
                     onAccentChange={(accent) => updateDept(room.id, { accent })}
                     onToneChange={(tone) => updateDept(room.id, { tone })}
@@ -438,21 +474,21 @@ export default function OfficeRoomManager({
                   />
                 );
               })}
-            </div>
+            </>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-4 border-t border-slate-700 shrink-0 flex gap-2">
+        <div className="px-3 py-2.5 border-t border-slate-700/80 shrink-0 flex gap-2">
           <button
             onClick={resetAll}
-            className="flex-1 py-2 rounded-md text-sm font-medium bg-slate-700 text-slate-200 hover:bg-slate-600 transition-colors"
+            className="flex-1 py-1.5 rounded-md text-xs font-medium bg-slate-700/80 text-slate-300 hover:bg-slate-600 transition-colors"
           >
             {labels.resetAll[language]}
           </button>
           <button
             onClick={onClose}
-            className="flex-1 py-2 rounded-md text-sm font-medium bg-slate-600 text-slate-100 hover:bg-slate-500 transition-colors"
+            className="flex-1 py-1.5 rounded-md text-xs font-medium bg-slate-600/80 text-slate-200 hover:bg-slate-500 transition-colors"
           >
             {labels.close[language]}
           </button>

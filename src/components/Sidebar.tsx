@@ -47,12 +47,12 @@ function DepartmentStatus({
   }, []);
 
   return (
-    <div className="px-3 py-2" style={{ borderTop: "1px solid var(--th-border)" }}>
+    <div className="px-2 py-1.5" style={{ borderTop: "1px solid var(--th-border)" }}>
       <div
-        className="text-[10px] uppercase font-semibold mb-1.5 tracking-wider"
+        className="text-[9px] uppercase font-semibold mb-1 tracking-wider px-1"
         style={{ color: "var(--th-text-muted)" }}
       >
-        {tr("부서 현황", "Department Status", "部門状況", "部门状态")}
+        {tr("부서 현황", "Departments", "部門状況", "部门状态")}
       </div>
       {departments.map((d) => {
         const deptAgents = agents.filter((a) => a.department_id === d.id);
@@ -63,27 +63,29 @@ function DepartmentStatus({
             <button
               type="button"
               onClick={() => toggle(d.id)}
-              className="flex items-center gap-1.5 rounded-md px-1.5 py-1 text-xs w-full hover:bg-[var(--th-bg-surface-hover)] transition-colors"
+              className="flex items-center gap-1 rounded px-1 py-0.5 text-[11px] w-full hover:bg-[var(--th-bg-surface-hover)] transition-colors"
               style={{ color: "var(--th-text-secondary)" }}
             >
-              <span className={`text-[8px] transition-transform ${expanded ? "rotate-90" : ""}`}>▶</span>
-              <span>{d.icon}</span>
+              <span className={`text-[7px] transition-transform opacity-50 ${expanded ? "rotate-90" : ""}`}>▶</span>
+              <span className="text-[10px]">{d.icon}</span>
               <span className="flex-1 truncate text-left">{localeName(locale, d)}</span>
-              <span className={working > 0 ? "text-blue-400 font-medium" : ""}>{working}/{deptAgents.length}</span>
+              <span className={`text-[10px] tabular-nums ${working > 0 ? "text-blue-400 font-medium" : "opacity-50"}`}>
+                {working}/{deptAgents.length}
+              </span>
             </button>
             {expanded && deptAgents.length > 0 && (
-              <div className="ml-5 mb-1">
+              <div className="ml-4 mb-0.5">
                 {deptAgents.map((a) => {
                   const isOnline = a.status === "working" || a.status === "meeting";
                   return (
                     <div
                       key={a.id}
-                      className="flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] rounded"
+                      className="flex items-center gap-1 px-1 py-px text-[10px] rounded"
                       style={{ color: "var(--th-text-secondary)" }}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isOnline ? "bg-green-500" : "bg-red-400"}`} />
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isOnline ? "bg-green-500" : "bg-red-400/70"}`} />
                       <span className="truncate">{localeName(locale, a)}</span>
-                      <span className="ml-auto text-[9px] opacity-60">{a.status}</span>
+                      <span className="ml-auto text-[8px] opacity-50">{a.status}</span>
                     </div>
                   );
                 })}
@@ -180,7 +182,7 @@ export default function Sidebar({ currentView, onChangeView, departments, agents
 
       {/* Quick stats */}
       {!collapsed && (
-        <div className="px-3 py-2 grid grid-cols-2 gap-1.5" style={{ borderTop: "1px solid var(--th-border)" }}>
+        <div className="px-2 py-1.5 grid grid-cols-2 gap-1" style={{ borderTop: "1px solid var(--th-border)" }}>
           {([
             { icon: "🤖", label: tr("직원", "Staff", "社員", "员工"), val: `${totalAgents}` },
             { icon: "⚡", label: tr("작업중", "Working", "稼働中", "工作中"), val: `${workingCount}`, highlight: workingCount > 0 },
@@ -189,14 +191,14 @@ export default function Sidebar({ currentView, onChangeView, departments, agents
           ] as const).map((s) => (
             <div
               key={s.label}
-              className="flex items-center gap-1.5 rounded-md px-1.5 py-1"
+              className="flex items-center gap-1 rounded px-1.5 py-0.5"
               style={{ background: "var(--th-bg-surface)", border: "1px solid var(--th-border)" }}
             >
-              <span className="text-xs">{s.icon}</span>
+              <span className="text-[10px]">{s.icon}</span>
               <div className="min-w-0">
-                <div className="text-[8px] leading-tight truncate" style={{ color: "var(--th-text-muted)" }}>{s.label}</div>
+                <div className="text-[7px] leading-tight truncate" style={{ color: "var(--th-text-muted)" }}>{s.label}</div>
                 <div
-                  className={`text-xs font-bold leading-tight ${s.highlight ? "text-blue-400" : ""}`}
+                  className={`text-[11px] font-bold leading-tight ${s.highlight ? "text-blue-400" : ""}`}
                   style={s.highlight ? undefined : { color: "var(--th-text-secondary)" }}
                 >
                   {s.val}
