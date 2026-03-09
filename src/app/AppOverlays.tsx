@@ -214,7 +214,7 @@ export default function AppOverlays({
           onThemeChange={onRoomThemeChange}
           onClose={onCloseRoomManager}
           language={uiLanguage}
-          agents={agents}
+          agents={agents.map(a => ({ id: a.id, department_id: a.department_id ?? "", status: a.status }))}
         />
       )}
     </>

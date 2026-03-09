@@ -76,7 +76,7 @@ function DepartmentStatus({
             {expanded && deptAgents.length > 0 && (
               <div className="ml-4 mb-0.5">
                 {deptAgents.map((a) => {
-                  const isOnline = a.status === "working" || a.status === "meeting";
+                  const isOnline = a.status === "working";
                   return (
                     <div
                       key={a.id}
@@ -184,10 +184,10 @@ export default function Sidebar({ currentView, onChangeView, departments, agents
       {!collapsed && (
         <div className="px-2 py-2 grid grid-cols-2 gap-1.5" style={{ borderTop: "1px solid var(--th-border)" }}>
           {([
-            { icon: "🤖", label: tr("직원", "Staff", "社員", "员工"), val: `${totalAgents}` },
+            { icon: "🤖", label: tr("직원", "Staff", "社員", "员工"), val: `${totalAgents}`, highlight: false },
             { icon: "⚡", label: tr("작업중", "Working", "稼働中", "工作中"), val: `${workingCount}`, highlight: workingCount > 0 },
             { icon: "📋", label: tr("진행", "Active", "進行中", "进行中"), val: `${inProgress}`, highlight: inProgress > 0 },
-            { icon: "✅", label: tr("완료", "Done", "完了", "完成"), val: `${doneCount}/${tasks.length}` },
+            { icon: "✅", label: tr("완료", "Done", "完了", "완成"), val: `${doneCount}/${tasks.length}`, highlight: false },
           ] as const).map((s) => (
             <div
               key={s.label}
