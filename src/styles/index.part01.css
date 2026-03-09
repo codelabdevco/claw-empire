@@ -95,6 +95,52 @@
   --th-danger-text: #ffffff;
 }
 
+/* ─── shadcn/ui CSS variable bridge ─── */
+:root,
+[data-theme="dark"] {
+  --background: var(--th-bg-primary);
+  --foreground: var(--th-text-primary);
+  --card: var(--th-card-bg);
+  --card-foreground: var(--th-text-primary);
+  --popover: var(--th-bg-surface);
+  --popover-foreground: var(--th-text-primary);
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: var(--th-bg-surface);
+  --secondary-foreground: var(--th-text-secondary);
+  --muted: var(--th-bg-surface);
+  --muted-foreground: var(--th-text-muted);
+  --accent: var(--th-bg-surface-hover);
+  --accent-foreground: var(--th-text-heading);
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: var(--th-border);
+  --input: var(--th-input-border);
+  --ring: var(--th-focus-ring);
+  --radius: 0.75rem;
+}
+[data-theme="light"] {
+  --background: var(--th-bg-primary);
+  --foreground: var(--th-text-primary);
+  --card: var(--th-card-bg);
+  --card-foreground: var(--th-text-primary);
+  --popover: var(--th-bg-surface);
+  --popover-foreground: var(--th-text-primary);
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: var(--th-bg-surface);
+  --secondary-foreground: var(--th-text-secondary);
+  --muted: var(--th-bg-secondary);
+  --muted-foreground: var(--th-text-muted);
+  --accent: var(--th-bg-surface-hover);
+  --accent-foreground: var(--th-text-heading);
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: var(--th-border);
+  --input: var(--th-input-border);
+  --ring: var(--th-focus-ring);
+}
+
 html,
 body,
 #root {

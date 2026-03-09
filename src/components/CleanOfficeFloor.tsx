@@ -2,6 +2,11 @@ import { useMemo } from "react";
 import type { Agent, Department, Task, MeetingPresence, SubAgent, CrossDeptDelivery, CeoOfficeCall } from "../types";
 import { useI18n, localeName } from "../i18n";
 import AgentAvatar, { useSpriteMap } from "./AgentAvatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 /* ── Props ── */
 interface CleanOfficeFloorProps {
@@ -31,12 +36,12 @@ const DOT: Record<string, string> = {
   meeting: "bg-blue-400",
 };
 
-/* ── Tiny avatar button ── */
-function Av({
+/* ── Agent avatar button ── */
+function AgentChip({
   agent,
   spriteMap,
   onClick,
-  size = 36,
+  size = 34,
   unread,
 }: {
   agent: Agent;
@@ -46,14 +51,32 @@ function Av({
   unread?: boolean;
 }) {
   return (
-    <button type="button" onClick={onClick} className="flex flex-col items-center gap-0.5 hover:scale-105 active:scale-95 transition-transform" title={agent.name}>
+    <Button
+      variant="ghost"
+      onClick={onClick}
+      className="flex flex-col items-center gap-0.5 h-auto p-1 hover:bg-accent/50"
+      title={agent.name}
+    >
       <div className="relative">
         <AgentAvatar agent={agent} spriteMap={spriteMap} size={size} rounded="full" />
-        <span className={`absolute -bottom-px -right-px w-2.5 h-2.5 rounded-full border-2 ${DOT[agent.status ?? "idle"]}`} style={{ borderColor: "var(--th-card-bg)" }} />
-        {unread && <span className="absolute -top-px -right-px w-2.5 h-2.5 rounded-full bg-red-500 border-2 animate-pulse" style={{ borderColor: "var(--th-card-bg)" }} />}
+        <span
+          className={cn(
+            "absolute -bottom-px -right-px w-2.5 h-2.5 rounded-full border-2",
+            DOT[agent.status ?? "idle"],
+          )}
+          style={{ borderColor: "var(--card)" }}
+        />
+        {unread && (
+          <span
+            className="absolute -top-px -right-px w-2.5 h-2.5 rounded-full bg-red-500 border-2 animate-pulse"
+            style={{ borderColor: "var(--card)" }}
+          />
+        )}
       </div>
-      <span className="text-[9px] truncate max-w-[48px] leading-none" style={{ color: "var(--th-text-muted)" }}>{agent.name}</span>
-    </button>
+      <span className="text-[9px] truncate max-w-[48px] leading-none text-muted-foreground font-normal">
+        {agent.name}
+      </span>
+    </Button>
   );
 }
 
@@ -102,76 +125,116 @@ export default function CleanOfficeFloor({
 
   return (
     <div className="space-y-3 max-w-5xl mx-auto">
-      {/* Inline status counts */}
-      <div className="flex items-center gap-4 px-1 text-[11px]" style={{ color: "var(--th-text-muted)" }}>
-        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500" />{working} {tr("작업중", "working")}</span>
-        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-400" />{idle} {tr("대기", "idle")}</span>
-        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-orange-400" />{onBreak} {tr("휴식", "break")}</span>
-        <span className="ml-auto tabular-nums">{agents.length} {tr("명", "total")}</span>
+      {/* Status summary */}
+      <div className="flex items-center gap-4 px-1">
+        <Badge variant="outline" className="gap-1.5 font-normal text-muted-foreground">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+          {working} {tr("작업중", "working")}
+        </Badge>
+        <Badge variant="outline" className="gap-1.5 font-normal text-muted-foreground">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+          {idle} {tr("대기", "idle")}
+        </Badge>
+        <Badge variant="outline" className="gap-1.5 font-normal text-muted-foreground">
+          <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+          {onBreak} {tr("휴식", "break")}
+        </Badge>
+        <span className="ml-auto text-[11px] tabular-nums text-muted-foreground">
+          {agents.length} {tr("명", "total")}
+        </span>
       </div>
 
-      {/* CEO + Meeting — compact row */}
+      <Separator />
+
+      {/* CEO + Meeting */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl p-3" style={{ background: "var(--th-card-bg)", border: "1px solid var(--th-card-border)" }}>
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-full overflow-hidden bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
-              <img src="/sprites/ceo-lobster.png" alt="CEO" className="w-7 h-7 object-contain" style={{ imageRendering: "pixelated" }} />
+        <Card>
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-full overflow-hidden bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                <img src="/sprites/ceo-lobster.png" alt="CEO" className="w-7 h-7 object-contain" style={{ imageRendering: "pixelated" }} />
+              </div>
+              <span className="text-xs font-semibold text-foreground">👑 CEO</span>
             </div>
-            <span className="text-xs font-semibold" style={{ color: "var(--th-text-heading)" }}>
-              👑 {tr("CEO", "CEO")}
-            </span>
-          </div>
-        </div>
-        <div className="rounded-xl p-3" style={{ background: "var(--th-card-bg)", border: "1px solid var(--th-card-border)" }}>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-xs font-semibold" style={{ color: "var(--th-text-heading)" }}>🎯 {tr("회의실", "Meeting")}</span>
-            {meetingAgents.length > 0 && <span className="text-[10px] tabular-nums" style={{ color: "var(--th-text-muted)" }}>{meetingAgents.length}</span>}
-          </div>
-          {meetingAgents.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {meetingAgents.map((a) => <Av key={a.id} agent={{ ...a, status: "working" as const }} spriteMap={spriteMap} onClick={() => onSelectAgent(a)} size={32} unread={unreadAgentIds?.has(a.id)} />)}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="p-3 pb-1.5">
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-xs">🎯 {tr("회의실", "Meeting")}</CardTitle>
+              {meetingAgents.length > 0 && (
+                <Badge variant="secondary" className="text-[10px] h-4 px-1.5">{meetingAgents.length}</Badge>
+              )}
             </div>
-          ) : (
-            <span className="text-[10px]" style={{ color: "var(--th-text-muted)" }}>—</span>
-          )}
-        </div>
+          </CardHeader>
+          <CardContent className="p-3 pt-0">
+            {meetingAgents.length > 0 ? (
+              <div className="flex flex-wrap gap-1">
+                {meetingAgents.map((a) => (
+                  <AgentChip key={a.id} agent={{ ...a, status: "working" as const }} spriteMap={spriteMap} onClick={() => onSelectAgent(a)} size={32} unread={unreadAgentIds?.has(a.id)} />
+                ))}
+              </div>
+            ) : (
+              <span className="text-[10px] text-muted-foreground">—</span>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Departments — 2-col grid */}
+      {/* Departments */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {sortedDepts.map((dept) => {
           const da = deptAgents.get(dept.id) ?? [];
           const wc = da.filter((a) => a.status === "working").length;
           return (
-            <div key={dept.id} className="rounded-xl p-3" style={{ background: "var(--th-card-bg)", border: "1px solid var(--th-card-border)" }}>
-              <button type="button" onClick={() => onSelectDepartment(dept)} className="flex items-center gap-1.5 mb-2 hover:opacity-80 transition-opacity">
-                <span className="text-sm">{dept.icon}</span>
-                <span className="text-xs font-semibold" style={{ color: "var(--th-text-heading)" }}>{localeName(locale, dept)}</span>
-                <span className="text-[10px] tabular-nums ml-auto" style={{ color: "var(--th-text-muted)" }}>{wc}/{da.length}</span>
-              </button>
-              {da.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {da.map((a) => <Av key={a.id} agent={a} spriteMap={spriteMap} onClick={() => onSelectAgent(a)} size={34} unread={unreadAgentIds?.has(a.id)} />)}
-                </div>
-              ) : (
-                <span className="text-[10px]" style={{ color: "var(--th-text-muted)" }}>—</span>
-              )}
-            </div>
+            <Card key={dept.id}>
+              <CardHeader className="p-3 pb-1.5">
+                <Button
+                  variant="ghost"
+                  onClick={() => onSelectDepartment(dept)}
+                  className="flex items-center gap-1.5 h-auto p-0 hover:bg-transparent hover:opacity-80 w-full justify-start"
+                >
+                  <span className="text-sm">{dept.icon}</span>
+                  <CardTitle className="text-xs">{localeName(locale, dept)}</CardTitle>
+                  <Badge variant="outline" className="ml-auto text-[10px] h-4 px-1.5 tabular-nums font-normal">
+                    {wc}/{da.length}
+                  </Badge>
+                </Button>
+              </CardHeader>
+              <CardContent className="p-3 pt-0">
+                {da.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {da.map((a) => (
+                      <AgentChip key={a.id} agent={a} spriteMap={spriteMap} onClick={() => onSelectAgent(a)} size={34} unread={unreadAgentIds?.has(a.id)} />
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-[10px] text-muted-foreground">—</span>
+                )}
+              </CardContent>
+            </Card>
           );
         })}
       </div>
 
-      {/* Break room — only if someone is on break */}
+      {/* Break room — only when occupied */}
       {breakAgents.length > 0 && (
-        <div className="rounded-xl p-3" style={{ background: "var(--th-card-bg)", border: "1px solid var(--th-card-border)" }}>
-          <div className="flex items-center gap-1.5 mb-2">
-            <span className="text-xs font-semibold" style={{ color: "var(--th-text-heading)" }}>☕ {tr("휴게실", "Break Room")}</span>
-            <span className="text-[10px] tabular-nums" style={{ color: "var(--th-text-muted)" }}>{breakAgents.length}</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {breakAgents.map((a) => <Av key={a.id} agent={a} spriteMap={spriteMap} onClick={() => onSelectAgent(a)} size={34} />)}
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="p-3 pb-1.5">
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-xs">☕ {tr("휴게실", "Break Room")}</CardTitle>
+              <Badge variant="secondary" className="text-[10px] h-4 px-1.5">{breakAgents.length}</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="p-3 pt-0">
+            <div className="flex flex-wrap gap-1">
+              {breakAgents.map((a) => (
+                <AgentChip key={a.id} agent={a} spriteMap={spriteMap} onClick={() => onSelectAgent(a)} size={34} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
