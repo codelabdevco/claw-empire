@@ -122,8 +122,9 @@ function findScrollContainer(start: HTMLElement | null, axis: ScrollAxis): HTMLE
 /*  Constants                                                          */
 /* ================================================================== */
 
+const OFFICE_FONT = "Noto Sans, Noto Sans Thai, system-ui, sans-serif";
 const MIN_OFFICE_W = 360;
-const CEO_ZONE_H = 110;
+const CEO_ZONE_H = 170;
 const HALLWAY_H = 32;
 const TARGET_CHAR_H = 52;
 const MINI_CHAR_H = 28;
@@ -210,10 +211,10 @@ function emitSubCloneSmokeBurst(
   const burstTxt = new Text({
     text: "펑",
     style: new TextStyle({
-      fontSize: 7,
+      fontSize: 9,
       fill: mode === "spawn" ? 0xeff4ff : 0xdde4f5,
       fontWeight: "bold",
-      fontFamily: "system-ui, sans-serif",
+      fontFamily: OFFICE_FONT,
       stroke: { color: 0x1f2838, width: 2 },
     }),
   });
@@ -282,6 +283,7 @@ export {
   TILE,
   CEO_SPEED,
   DELIVERY_SPEED,
+  OFFICE_FONT,
   BREAK_ROOM_H,
   BREAK_ROOM_GAP,
   MAX_VISIBLE_SUB_CLONES_PER_AGENT,

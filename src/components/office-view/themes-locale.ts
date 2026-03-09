@@ -1,7 +1,7 @@
 import { type Graphics, type Text, TextStyle } from "pixi.js";
 import type { UiLanguage } from "../../i18n";
 import type { MeetingReviewDecision } from "../../types";
-import type { RoomTheme } from "./model";
+import { OFFICE_FONT, type RoomTheme } from "./model";
 
 const OFFICE_PASTEL_LIGHT = {
   creamWhite: 0xf8f3ec,
@@ -78,6 +78,12 @@ const LOCALE_TEXT = {
     ja: "6人コラボテーブル",
     zh: "6人协作桌",
   },
+  meetingRoom: {
+    ko: "🤝 회의실",
+    en: "🤝 MEETING ROOM",
+    ja: "🤝 会議室",
+    zh: "🤝 会议室",
+  },
   statsEmployees: { ko: "직원", en: "Staff", ja: "スタッフ", zh: "员工" },
   statsWorking: { ko: "작업중", en: "Working", ja: "作業中", zh: "处理中" },
   statsProgress: { ko: "진행", en: "In Progress", ja: "進行", zh: "进行中" },
@@ -112,6 +118,12 @@ const LOCALE_TEXT = {
     junior: { ko: "주니어", en: "Junior", ja: "ジュニア", zh: "初级" },
     intern: { ko: "인턴", en: "Intern", ja: "インターン", zh: "实习" },
     part_time: { ko: "알바", en: "Part-time", ja: "アルバイト", zh: "兼职" },
+  },
+  status: {
+    working: { ko: "작업중", en: "Working", ja: "作業中", zh: "工作中" },
+    idle: { ko: "대기", en: "Idle", ja: "待機", zh: "空闲" },
+    break: { ko: "휴식", en: "Break", ja: "休憩", zh: "休息" },
+    offline: { ko: "오프라인", en: "Offline", ja: "オフライン", zh: "离线" },
   },
   partTime: {
     ko: "알바",

@@ -15,6 +15,7 @@ import {
   SUB_CLONE_WAVE_SPEED,
   TARGET_CHAR_H,
   destroyNode,
+  OFFICE_FONT,
   emitSubCloneFireworkBurst,
 } from "./model";
 import { applyWallClockTime, blendColor } from "./drawing-core";
@@ -106,8 +107,15 @@ export function runOfficeTickerStep(ctx: OfficeTickerContext): void {
     if (keys["ArrowDown"] || keys["KeyS"]) dy += CEO_SPEED;
 
     if (dx || dy) {
-      ctx.ceoPosRef.current.x = Math.max(28, Math.min(ctx.officeWRef.current - 28, ctx.ceoPosRef.current.x + dx));
-      ctx.ceoPosRef.current.y = Math.max(18, Math.min(ctx.totalHRef.current - 28, ctx.ceoPosRef.current.y + dy));
+      const bounds = ctx.ceoOfficeRectRef.current;
+      if (bounds) {
+        const m = 20;
+        ctx.ceoPosRef.current.x = Math.max(bounds.x + m, Math.min(bounds.x + bounds.w - m, ctx.ceoPosRef.current.x + dx));
+        ctx.ceoPosRef.current.y = Math.max(bounds.y + m, Math.min(bounds.y + bounds.h - m, ctx.ceoPosRef.current.y + dy));
+      } else {
+        ctx.ceoPosRef.current.x = Math.max(28, Math.min(ctx.officeWRef.current - 28, ctx.ceoPosRef.current.x + dx));
+        ctx.ceoPosRef.current.y = Math.max(18, Math.min(ctx.totalHRef.current - 28, ctx.ceoPosRef.current.y + dy));
+      }
       ceo.position.set(ctx.ceoPosRef.current.x, ctx.ceoPosRef.current.y);
       ctx.followCeoInView();
     }
@@ -297,7 +305,7 @@ export function runOfficeTickerStep(ctx: OfficeTickerContext): void {
         if (tick % 80 === 0) {
           const sleepy = new Text({
             text: "z",
-            style: new TextStyle({ fontSize: 7 + Math.random() * 3, fill: 0xaaaacc, fontFamily: "monospace" }),
+            style: new TextStyle({ fontSize: 9 + Math.random() * 3, fill: 0xaaaacc, fontFamily: OFFICE_FONT }),
           });
           sleepy.anchor.set(0.5, 0.5);
           sleepy.position.set(headX + 6, bedCenterY - 18);

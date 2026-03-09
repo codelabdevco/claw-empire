@@ -2,7 +2,7 @@ import { useEffect, type MutableRefObject } from "react";
 import { AnimatedSprite, Container, Graphics, Text, TextStyle, type Texture } from "pixi.js";
 import type { Agent, CeoOfficeCall, CrossDeptDelivery, MeetingPresence } from "../../types";
 import { hashStr } from "./drawing-core";
-import { type Delivery, destroyNode, trackProcessedId } from "./model";
+import { type Delivery, OFFICE_FONT, destroyNode, trackProcessedId } from "./model";
 import {
   LOCALE_TEXT,
   paintMeetingBadge,
@@ -94,7 +94,7 @@ export function useMeetingPresenceSync({
       actor.addChild(badge);
       const badgeText = new Text({
         text: "",
-        style: new TextStyle({ fontSize: 7, fill: 0x111111, fontWeight: "bold", fontFamily: "system-ui, sans-serif" }),
+        style: new TextStyle({ fontSize: 9, fill: 0x111111, fontWeight: "bold", fontFamily: OFFICE_FONT }),
       });
       badgeText.anchor.set(0.5, 0.5);
       badgeText.position.set(0, 10.5);
@@ -219,7 +219,7 @@ export function useCrossDeptDeliveryAnimations({
 
       const badgeText = new Text({
         text: pickLocale(language, LOCALE_TEXT.collabBadge),
-        style: new TextStyle({ fontSize: 7, fill: 0x000000, fontWeight: "bold", fontFamily: "system-ui, sans-serif" }),
+        style: new TextStyle({ fontSize: 9, fill: 0x000000, fontWeight: "bold", fontFamily: OFFICE_FONT }),
       });
       badgeText.anchor.set(0.5, 0.5);
       badgeText.position.set(0, 9.5);
@@ -302,9 +302,9 @@ export function useCeoOfficeCallAnimations({
       const bubbleText = new Text({
         text: line,
         style: new TextStyle({
-          fontSize: 7,
+          fontSize: 9,
           fill: 0x2b2b2b,
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: OFFICE_FONT,
           wordWrap: true,
           wordWrapWidth: 120,
           breakWords: true,
@@ -411,7 +411,7 @@ export function useCeoOfficeCallAnimations({
       const decision = resolveMeetingDecision(call.phase, call.decision, call.line);
       const badgeText = new Text({
         text: "",
-        style: new TextStyle({ fontSize: 7, fill: 0x111111, fontWeight: "bold", fontFamily: "system-ui, sans-serif" }),
+        style: new TextStyle({ fontSize: 9, fill: 0x111111, fontWeight: "bold", fontFamily: OFFICE_FONT }),
       });
       badgeText.anchor.set(0.5, 0.5);
       badgeText.position.set(0, 10.5);

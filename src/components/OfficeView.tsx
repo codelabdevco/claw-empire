@@ -67,7 +67,7 @@ export default function OfficeView({
   // Animation state refs
   const tickRef = useRef(0);
   const keysRef = useRef<Record<string, boolean>>({});
-  const ceoPosRef = useRef({ x: 180, y: 60 });
+  const ceoPosRef = useRef({ x: 100, y: 90 });
   const ceoSpriteRef = useRef<Container | null>(null);
   const crownRef = useRef<Text | null>(null);
   const highlightRef = useRef<Graphics | null>(null);

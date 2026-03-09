@@ -342,6 +342,7 @@ export default function AppMainLayout({
             onChangeView={setView}
             departments={officePresentation.departments}
             agents={officePresentation.agents}
+            tasks={tasks}
             settings={settings}
             connected={connected}
           />
@@ -367,6 +368,7 @@ export default function AppMainLayout({
             }}
             departments={officePresentation.departments}
             agents={officePresentation.agents}
+            tasks={tasks}
             settings={settings}
             connected={connected}
           />

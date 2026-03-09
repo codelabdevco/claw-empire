@@ -670,7 +670,7 @@
   background: #2563eb;
 }
 [data-theme="light"] .sidebar-nav-item:hover {
-  background: rgba(0, 0, 0, 0.04);
+  background: rgba(59, 130, 246, 0.06);
 }
 
 /* 4. Game panel subtle hover lift */

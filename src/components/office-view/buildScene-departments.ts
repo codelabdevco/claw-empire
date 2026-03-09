@@ -13,6 +13,7 @@ import {
   type RoomRect,
   type SubCloneBurstParticle,
   type WallClockVisual,
+  OFFICE_FONT,
   emitSubCloneSmokeBurst,
 } from "./model";
 import { DEPT_THEME, LOCALE_TEXT, type SupportedLocale, pickLocale } from "./themes-locale";
@@ -47,10 +48,9 @@ interface BuildDepartmentRoomsParams {
   gridCols: number;
   roomStartX: number;
   roomW: number;
-  roomH: number;
+  rowHeights: number[];
   roomGap: number;
   deptStartY: number;
-  agentRows: number;
   spriteMap: Map<string, number>;
   cbRef: MutableRefObject<CallbackSnapshot>;
   roomRectsRef: MutableRefObject<RoomRect[]>;
@@ -77,10 +77,9 @@ export function buildDepartmentRooms({
   gridCols,
   roomStartX,
   roomW,
-  roomH,
+  rowHeights,
   roomGap,
   deptStartY,
-  agentRows,
   spriteMap,
   cbRef,
   roomRectsRef,
@@ -96,8 +95,12 @@ export function buildDepartmentRooms({
   departments.forEach((dept, deptIdx) => {
     const col = deptIdx % gridCols;
     const row = Math.floor(deptIdx / gridCols);
+    const roomH = rowHeights[row];
     const rx = roomStartX + col * (roomW + roomGap);
-    const ry = deptStartY + row * (roomH + roomGap);
+    let ry = deptStartY;
+    for (let r = 0; r < row; r++) {
+      ry += rowHeights[r] + roomGap;
+    }
     const theme = customThemes?.[dept.id] || DEPT_THEME[dept.id] || DEPT_THEME.dev;
     const deptAgents = agents.filter((agent) => agent.department_id === dept.id);
     roomRectsRef.current.push({ dept, x: rx, y: ry, w: roomW, h: roomH });
@@ -128,11 +131,11 @@ export function buildDepartmentRooms({
     const signTxt = new Text({
       text: `${dept.icon || "🏢"} ${localeName(activeLocale, dept)}`,
       style: new TextStyle({
-        fontSize: 9,
+        fontSize: 11,
         fill: 0xffffff,
         fontWeight: "bold",
-        fontFamily: "system-ui, sans-serif",
-        dropShadow: { alpha: 0.2, distance: 1, color: 0x000000 },
+        fontFamily: OFFICE_FONT,
+        dropShadow: { alpha: 0.35, distance: 1, blur: 1, color: 0x000000 },
       }),
     });
     signTxt.anchor.set(0.5, 0.5);
@@ -142,12 +145,13 @@ export function buildDepartmentRooms({
     drawCeilingAndDecor(room, rx, ry, roomW, roomH, theme, deptIdx, wallClocksRef);
 
     if (deptAgents.length > 0) {
+      const deptAgentRows = Math.ceil(deptAgents.length / COLS_PER_ROW);
       drawRug(
         room,
         rx + roomW / 2,
-        ry + 38 + (Math.min(agentRows, 2) * SLOT_H) / 2,
+        ry + 38 + (Math.min(deptAgentRows, 2) * SLOT_H) / 2,
         roomW - 40,
-        Math.min(agentRows, 2) * SLOT_H - 10,
+        Math.min(deptAgentRows, 2) * SLOT_H - 10,
         theme.accent,
       );
     }
@@ -155,7 +159,7 @@ export function buildDepartmentRooms({
     if (deptAgents.length === 0) {
       const emptyText = new Text({
         text: pickLocale(activeLocale, LOCALE_TEXT.noAssignedAgent),
-        style: new TextStyle({ fontSize: 10, fill: 0x9a8a7a, fontFamily: "system-ui, sans-serif" }),
+        style: new TextStyle({ fontSize: 12, fill: 0x5a4a3a, fontWeight: "bold", fontFamily: OFFICE_FONT }),
       });
       emptyText.anchor.set(0.5, 0.5);
       emptyText.position.set(rx + roomW / 2, ry + roomH / 2);
@@ -269,10 +273,11 @@ function renderAgentHeader(
   const nameText = new Text({
     text: localeName(activeLocale, agent),
     style: new TextStyle({
-      fontSize: 7,
-      fill: 0x3a3a4a,
+      fontSize: 9,
+      fill: 0x1a1a2a,
       fontWeight: "bold",
-      fontFamily: "system-ui, sans-serif",
+      fontFamily: OFFICE_FONT,
+      dropShadow: { alpha: 0.15, distance: 1, blur: 1, color: 0x000000 },
     }),
   });
   nameText.anchor.set(0.5, 0);
@@ -291,7 +296,7 @@ function renderAgentHeader(
     room.addChild(bangBg);
     const bangTxt = new Text({
       text: "!",
-      style: new TextStyle({ fontSize: 8, fill: 0xffffff, fontWeight: "bold", fontFamily: "monospace" }),
+      style: new TextStyle({ fontSize: 10, fill: 0xffffff, fontWeight: "bold", fontFamily: OFFICE_FONT }),
     });
     bangTxt.anchor.set(0.5, 0.5);
     bangTxt.position.set(bangX, nameY + 6);
@@ -309,9 +314,9 @@ function renderAgentHeader(
       },
     ),
     style: new TextStyle({
-      fontSize: 6,
+      fontSize: 8,
       fill: contrastTextColor(accent),
-      fontFamily: "system-ui, sans-serif",
+      fontFamily: OFFICE_FONT,
     }),
   });
   roleText.anchor.set(0.5, 0.5);
@@ -321,6 +326,37 @@ function renderAgentHeader(
   room.addChild(roleTagBg);
   roleText.position.set(ax, nameY + 17.5);
   room.addChild(roleText);
+
+  // --- Status dot (left of name tag) ---
+  const statusColors: Record<string, number> = {
+    working: 0x22c55e,
+    idle: 0xeab308,
+    break: 0x3b82f6,
+    offline: 0x6b7280,
+  };
+  const dotColor = statusColors[agent.status] ?? 0x6b7280;
+  const dotX = ax - nameTagW / 2 - 7;
+  const dotY = nameY + 6;
+  const dotG = new Graphics();
+  dotG.circle(dotX, dotY, 4.5).fill({ color: 0xffffff, alpha: 0.9 });
+  dotG.circle(dotX, dotY, 3.5).fill(dotColor);
+  room.addChild(dotG);
+
+  // --- Status label (below role tag) ---
+  const statusKey = agent.status as keyof typeof LOCALE_TEXT.status;
+  const statusLabel = new Text({
+    text: pickLocale(activeLocale, LOCALE_TEXT.status[statusKey]),
+    style: new TextStyle({
+      fontSize: 8,
+      fill: dotColor,
+      fontWeight: "bold",
+      fontFamily: OFFICE_FONT,
+      dropShadow: { alpha: 0.4, distance: 1, blur: 1, color: 0xffffff },
+    }),
+  });
+  statusLabel.anchor.set(0.5, 0);
+  statusLabel.position.set(ax, nameY + 27);
+  room.addChild(statusLabel);
 }
 
 function drawBreakAwayTag(
@@ -337,10 +373,11 @@ function drawBreakAwayTag(
   const awayTag = new Text({
     text: pickLocale(activeLocale, LOCALE_TEXT.breakRoom),
     style: new TextStyle({
-      fontSize: 8,
+      fontSize: 10,
       fill: contrastTextColor(awayTagBgColor),
       fontWeight: "bold",
-      fontFamily: "system-ui, sans-serif",
+      fontFamily: OFFICE_FONT,
+      dropShadow: { alpha: 0.3, distance: 1, blur: 1, color: 0x000000 },
     }),
   });
   awayTag.anchor.set(0.5, 0.5);

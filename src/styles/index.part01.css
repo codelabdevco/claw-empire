@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -20,8 +20,8 @@
 /* ─── Dark Theme: 심야작업 오피스 (late-night coding session) ─── */
 :root,
 [data-theme="dark"] {
-  --th-font-display: "Sora", "IBM Plex Sans KR", "Segoe UI", sans-serif;
-  --th-font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif;
+  --th-font-display: "Sora", "Noto Sans Thai", "Noto Sans", "IBM Plex Sans KR", "Segoe UI", sans-serif;
+  --th-font-body: "Noto Sans Thai", "Noto Sans", "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif;
   --th-font-mono: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   --th-bg-primary: #0a0a18;
   --th-bg-secondary: #10102a;
@@ -58,36 +58,36 @@
   --th-danger-text: #ffffff;
 }
 
-/* ─── Light Theme: 낮 업무 오피스 (warm daytime office) ─── */
+/* ─── Light Theme: Modern Clean Office ─── */
 [data-theme="light"] {
-  --th-bg-primary: #f7f3ec;
-  --th-bg-secondary: #f0ebe2;
-  --th-bg-surface: rgba(255, 252, 245, 0.88);
-  --th-bg-surface-hover: rgba(255, 252, 245, 0.96);
-  --th-bg-header: rgba(247, 243, 236, 0.94);
-  --th-bg-sidebar: rgba(242, 237, 228, 0.92);
-  --th-border: rgba(190, 178, 155, 0.35);
-  --th-border-strong: rgba(170, 158, 135, 0.5);
-  --th-text-primary: #2a2520;
-  --th-text-secondary: #5c554c;
-  --th-text-muted: #908880;
-  --th-text-heading: #1a1614;
-  --th-scrollbar-thumb: #c8bfae;
-  --th-scrollbar-thumb-hover: #b0a694;
-  --th-card-bg: rgba(255, 252, 246, 0.82);
-  --th-card-border: rgba(210, 200, 180, 0.35);
-  --th-card-bg-hover: rgba(255, 250, 238, 0.95);
-  --th-panel-bg: rgba(255, 252, 246, 0.82);
-  --th-panel-border: rgba(210, 200, 180, 0.35);
-  --th-label-color: #7d7468;
-  --th-glass-bg: rgba(0, 0, 0, 0.02);
-  --th-glass-border: rgba(0, 0, 0, 0.05);
-  --th-glass-shadow: rgba(0, 0, 0, 0.06);
-  --th-glass-highlight: rgba(255, 255, 255, 0.65);
-  --th-modal-overlay: rgba(30, 25, 15, 0.28);
-  --th-input-bg: rgba(255, 252, 246, 0.92);
-  --th-input-border: rgba(210, 200, 180, 0.45);
-  --th-accent-glow: rgba(135, 206, 235, 0.08);
+  --th-bg-primary: #f8fafc;
+  --th-bg-secondary: #f1f5f9;
+  --th-bg-surface: rgba(255, 255, 255, 0.82);
+  --th-bg-surface-hover: rgba(255, 255, 255, 0.95);
+  --th-bg-header: rgba(255, 255, 255, 0.85);
+  --th-bg-sidebar: rgba(248, 250, 252, 0.92);
+  --th-border: rgba(148, 163, 184, 0.25);
+  --th-border-strong: rgba(100, 116, 139, 0.3);
+  --th-text-primary: #1e293b;
+  --th-text-secondary: #475569;
+  --th-text-muted: #94a3b8;
+  --th-text-heading: #0f172a;
+  --th-scrollbar-thumb: #cbd5e1;
+  --th-scrollbar-thumb-hover: #94a3b8;
+  --th-card-bg: rgba(255, 255, 255, 0.75);
+  --th-card-border: rgba(148, 163, 184, 0.2);
+  --th-card-bg-hover: rgba(255, 255, 255, 0.92);
+  --th-panel-bg: rgba(255, 255, 255, 0.75);
+  --th-panel-border: rgba(148, 163, 184, 0.2);
+  --th-label-color: #64748b;
+  --th-glass-bg: rgba(255, 255, 255, 0.45);
+  --th-glass-border: rgba(148, 163, 184, 0.15);
+  --th-glass-shadow: rgba(0, 0, 0, 0.04);
+  --th-glass-highlight: rgba(255, 255, 255, 0.8);
+  --th-modal-overlay: rgba(15, 23, 42, 0.3);
+  --th-input-bg: rgba(255, 255, 255, 0.9);
+  --th-input-border: rgba(148, 163, 184, 0.35);
+  --th-accent-glow: rgba(59, 130, 246, 0.06);
   --th-focus-ring: #2563eb;
   --th-focus-ring-shadow: rgba(37, 99, 235, 0.22);
   --th-danger-bg: #be123c;
@@ -120,8 +120,9 @@ body {
 
 [data-theme="light"] body {
   background:
-    radial-gradient(circle at 8% -12%, rgba(37, 99, 235, 0.12), transparent 38%),
-    radial-gradient(circle at 92% 4%, rgba(217, 119, 6, 0.08), transparent 30%),
+    radial-gradient(circle at 10% -8%, rgba(59, 130, 246, 0.08), transparent 40%),
+    radial-gradient(circle at 90% 0%, rgba(139, 92, 246, 0.05), transparent 35%),
+    radial-gradient(circle at 50% 100%, rgba(34, 211, 238, 0.04), transparent 50%),
     linear-gradient(160deg, var(--th-bg-primary), var(--th-bg-secondary));
 }
 
@@ -148,8 +149,9 @@ pre,
 
 [data-theme="light"] .app-shell {
   background:
-    radial-gradient(circle at 10% -16%, rgba(37, 99, 235, 0.1), transparent 42%),
-    radial-gradient(circle at 92% -8%, rgba(245, 158, 11, 0.09), transparent 36%),
+    radial-gradient(circle at 10% -16%, rgba(59, 130, 246, 0.07), transparent 42%),
+    radial-gradient(circle at 92% -8%, rgba(139, 92, 246, 0.05), transparent 36%),
+    radial-gradient(circle at 50% 100%, rgba(34, 211, 238, 0.03), transparent 50%),
     linear-gradient(160deg, var(--th-bg-primary), var(--th-bg-secondary));
 }
 
@@ -338,16 +340,16 @@ pre,
   background-color: var(--th-bg-surface) !important;
 }
 [data-theme="light"] [class*="bg-slate-700"] {
-  background-color: rgba(200, 190, 170, 0.4) !important;
+  background-color: rgba(148, 163, 184, 0.15) !important;
 }
 [data-theme="light"] [class*="bg-slate-600"] {
-  background-color: rgba(190, 180, 160, 0.35) !important;
+  background-color: rgba(148, 163, 184, 0.12) !important;
 }
 [data-theme="light"] [class*="bg-slate-500"] {
-  background-color: rgba(180, 170, 150, 0.3) !important;
+  background-color: rgba(148, 163, 184, 0.1) !important;
 }
 [data-theme="light"] [class*="bg-slate-400"] {
-  background-color: rgba(175, 165, 145, 0.25) !important;
+  background-color: rgba(148, 163, 184, 0.08) !important;
 }
 [data-theme="light"] [class*="bg-black"] {
   background-color: rgba(0, 0, 0, 0.2) !important;
@@ -361,16 +363,16 @@ pre,
   background-color: var(--th-bg-surface) !important;
 }
 [data-theme="light"] [class*="bg-gray-700"] {
-  background-color: rgba(200, 190, 170, 0.45) !important;
+  background-color: rgba(148, 163, 184, 0.18) !important;
 }
 [data-theme="light"] [class*="bg-gray-600"] {
-  background-color: rgba(190, 180, 160, 0.4) !important;
+  background-color: rgba(148, 163, 184, 0.15) !important;
 }
 [data-theme="light"] [class*="bg-gray-500"] {
-  background-color: rgba(180, 170, 150, 0.35) !important;
+  background-color: rgba(148, 163, 184, 0.12) !important;
 }
 [data-theme="light"] [class*="bg-gray-400"] {
-  background-color: rgba(175, 165, 145, 0.3) !important;
+  background-color: rgba(148, 163, 184, 0.1) !important;
 }
 
 /* ── Zinc background overrides ── */
@@ -381,7 +383,7 @@ pre,
   background-color: var(--th-bg-surface) !important;
 }
 [data-theme="light"] [class*="bg-zinc-700"] {
-  background-color: rgba(200, 190, 170, 0.4) !important;
+  background-color: rgba(148, 163, 184, 0.15) !important;
 }
 
 /* ── Slate text overrides ── */
@@ -400,7 +402,7 @@ pre,
   color: var(--th-text-muted) !important;
 }
 [data-theme="light"] [class*="text-slate-600"] {
-  color: #6b6358 !important;
+  color: #475569 !important;
 }
 [data-theme="light"] .text-slate-950 {
   color: #1a1a1a !important;
@@ -419,10 +421,10 @@ pre,
   color: var(--th-text-muted) !important;
 }
 [data-theme="light"] [class*="text-gray-600"] {
-  color: #6b6358 !important;
+  color: #475569 !important;
 }
 [data-theme="light"] [class*="text-gray-700"] {
-  color: #555045 !important;
+  color: #334155 !important;
 }
 
 /* ── Slate border overrides ── */
@@ -435,10 +437,10 @@ pre,
   border-color: var(--th-border-strong) !important;
 }
 [data-theme="light"] [class*="border-slate-500"] {
-  border-color: rgba(180, 170, 150, 0.35) !important;
+  border-color: rgba(148, 163, 184, 0.25) !important;
 }
 [data-theme="light"] [class*="border-slate-400"] {
-  border-color: rgba(180, 170, 150, 0.3) !important;
+  border-color: rgba(148, 163, 184, 0.2) !important;
 }
 
 /* ── Gray border overrides ── */
@@ -467,13 +469,13 @@ pre,
 
 /* ── Hover state overrides (slate) ── */
 [data-theme="light"] [class*="hover\:bg-slate-700"]:hover {
-  background-color: rgba(200, 190, 170, 0.4) !important;
+  background-color: rgba(148, 163, 184, 0.15) !important;
 }
 [data-theme="light"] [class*="hover\:bg-slate-800"]:hover {
   background-color: var(--th-bg-surface-hover) !important;
 }
 [data-theme="light"] [class*="hover\:bg-slate-600"]:hover {
-  background-color: rgba(195, 185, 165, 0.4) !important;
+  background-color: rgba(148, 163, 184, 0.12) !important;
 }
 [data-theme="light"] [class*="hover\:text-white"]:hover {
   color: var(--th-text-heading) !important;
@@ -485,10 +487,10 @@ pre,
 
 /* ── Hover state overrides (gray) ── */
 [data-theme="light"] [class*="hover\:bg-gray-700"]:hover {
-  background-color: rgba(200, 190, 170, 0.45) !important;
+  background-color: rgba(148, 163, 184, 0.18) !important;
 }
 [data-theme="light"] [class*="hover\:bg-gray-600"]:hover {
-  background-color: rgba(195, 185, 165, 0.4) !important;
+  background-color: rgba(148, 163, 184, 0.15) !important;
 }
 [data-theme="light"] [class*="hover\:text-gray-200"]:hover,
 [data-theme="light"] [class*="hover\:text-gray-300"]:hover {

@@ -219,7 +219,7 @@
 
 /* ── Hover overrides for slate action buttons ── */
 [data-theme="light"] [class*="hover\\:bg-slate-600"]:hover {
-  background-color: rgba(195, 185, 165, 0.4) !important;
+  background-color: rgba(148, 163, 184, 0.12) !important;
 }
 
 /* ── Delete button bg-red-900/60 ── */
@@ -275,7 +275,7 @@
 }
 [data-theme="light"] [class*="bg-slate-800\\/80"],
 [data-theme="light"] [class*="bg-slate-800/80"] {
-  background-color: rgba(200, 190, 170, 0.4) !important;
+  background-color: rgba(148, 163, 184, 0.15) !important;
 }
 
 /* ── ReportHistory & AgentStatusPanel modal backgrounds ── */
@@ -410,7 +410,7 @@
 
 /* ── Disabled button: disabled:bg-slate-700 ── */
 [data-theme="light"] [class*="disabled\\:bg-slate-700"]:disabled {
-  background-color: rgba(200, 190, 170, 0.3) !important;
+  background-color: rgba(148, 163, 184, 0.15) !important;
 }
 [data-theme="light"] [class*="disabled\\:text-slate-400"]:disabled {
   color: var(--th-text-muted) !important;

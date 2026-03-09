@@ -188,7 +188,7 @@ export function useOfficePixiRuntime({
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
 
-    init();
+    init().catch((err) => console.error("[OfficePixi] init failed:", err));
 
     const resizeObserver = new ResizeObserver((entries) => {
       const entry = entries[0];

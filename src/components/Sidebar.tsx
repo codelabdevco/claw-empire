@@ -1,5 +1,5 @@
-import { useState } from "react";
-import type { Department, Agent, CompanySettings } from "../types";
+import { useState, useCallback } from "react";
+import type { Department, Agent, Task, CompanySettings } from "../types";
 import { useI18n, localeName } from "../i18n";
 
 type View = "office" | "agents" | "dashboard" | "tasks" | "skills" | "settings";
@@ -9,6 +9,7 @@ interface SidebarProps {
   onChangeView: (v: View) => void;
   departments: Department[];
   agents: Agent[];
+  tasks: Task[];
   settings: CompanySettings;
   connected: boolean;
 }
@@ -22,11 +23,86 @@ const NAV_ITEMS: { view: View; icon: string; sprite?: string }[] = [
   { view: "settings", icon: "⚙️" },
 ];
 
-export default function Sidebar({ currentView, onChangeView, departments, agents, settings, connected }: SidebarProps) {
+/* ── Department Status with dropdown per department ── */
+function DepartmentStatus({
+  departments,
+  agents,
+  locale,
+  tr,
+}: {
+  departments: Department[];
+  agents: Agent[];
+  locale: string;
+  tr: (ko: string, en: string, ja?: string, zh?: string) => string;
+}) {
+  const [expandedDepts, setExpandedDepts] = useState<Set<string>>(new Set());
+
+  const toggle = useCallback((id: string) => {
+    setExpandedDepts((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  return (
+    <div className="px-3 py-2" style={{ borderTop: "1px solid var(--th-border)" }}>
+      <div
+        className="text-[10px] uppercase font-semibold mb-1.5 tracking-wider"
+        style={{ color: "var(--th-text-muted)" }}
+      >
+        {tr("부서 현황", "Department Status", "部門状況", "部门状态")}
+      </div>
+      {departments.map((d) => {
+        const deptAgents = agents.filter((a) => a.department_id === d.id);
+        const working = deptAgents.filter((a) => a.status === "working").length;
+        const expanded = expandedDepts.has(d.id);
+        return (
+          <div key={d.id}>
+            <button
+              type="button"
+              onClick={() => toggle(d.id)}
+              className="flex items-center gap-1.5 rounded-md px-1.5 py-1 text-xs w-full hover:bg-[var(--th-bg-surface-hover)] transition-colors"
+              style={{ color: "var(--th-text-secondary)" }}
+            >
+              <span className={`text-[8px] transition-transform ${expanded ? "rotate-90" : ""}`}>▶</span>
+              <span>{d.icon}</span>
+              <span className="flex-1 truncate text-left">{localeName(locale, d)}</span>
+              <span className={working > 0 ? "text-blue-400 font-medium" : ""}>{working}/{deptAgents.length}</span>
+            </button>
+            {expanded && deptAgents.length > 0 && (
+              <div className="ml-5 mb-1">
+                {deptAgents.map((a) => {
+                  const isOnline = a.status === "working" || a.status === "meeting";
+                  return (
+                    <div
+                      key={a.id}
+                      className="flex items-center gap-1.5 px-1.5 py-0.5 text-[11px] rounded"
+                      style={{ color: "var(--th-text-secondary)" }}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isOnline ? "bg-green-500" : "bg-red-400"}`} />
+                      <span className="truncate">{localeName(locale, a)}</span>
+                      <span className="ml-auto text-[9px] opacity-60">{a.status}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export default function Sidebar({ currentView, onChangeView, departments, agents, tasks, settings, connected }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { t, locale } = useI18n();
   const workingCount = agents.filter((a) => a.status === "working").length;
   const totalAgents = agents.length;
+  const inProgress = tasks.filter((tk) => tk.status === "in_progress").length;
+  const doneCount = tasks.filter((tk) => tk.status === "done").length;
 
   const tr = (ko: string, en: string, ja = en, zh = en) => t({ ko, en, ja, zh });
 
@@ -102,33 +178,38 @@ export default function Sidebar({ currentView, onChangeView, departments, agents
         ))}
       </nav>
 
-      {/* Department quick stats */}
+      {/* Quick stats */}
       {!collapsed && (
-        <div className="px-3 py-2" style={{ borderTop: "1px solid var(--th-border)" }}>
-          <div
-            className="text-[10px] uppercase font-semibold mb-1.5 tracking-wider"
-            style={{ color: "var(--th-text-muted)" }}
-          >
-            {tr("부서 현황", "Department Status", "部門状況", "部门状态")}
-          </div>
-          {departments.map((d) => {
-            const deptAgents = agents.filter((a) => a.department_id === d.id);
-            const working = deptAgents.filter((a) => a.status === "working").length;
-            return (
-              <div
-                key={d.id}
-                className="flex items-center gap-1.5 rounded-md px-1.5 py-1 text-xs hover:bg-[var(--th-bg-surface-hover)] transition-colors"
-                style={{ color: "var(--th-text-secondary)" }}
-              >
-                <span>{d.icon}</span>
-                <span className="flex-1 truncate">{localeName(locale, d)}</span>
-                <span className={working > 0 ? "text-blue-400 font-medium" : ""}>
-                  {working}/{deptAgents.length}
-                </span>
+        <div className="px-3 py-2 grid grid-cols-2 gap-1.5" style={{ borderTop: "1px solid var(--th-border)" }}>
+          {([
+            { icon: "🤖", label: tr("직원", "Staff", "社員", "员工"), val: `${totalAgents}` },
+            { icon: "⚡", label: tr("작업중", "Working", "稼働中", "工作中"), val: `${workingCount}`, highlight: workingCount > 0 },
+            { icon: "📋", label: tr("진행", "In Progress", "進行中", "进行中"), val: `${inProgress}`, highlight: inProgress > 0 },
+            { icon: "✅", label: tr("완료", "Done", "完了", "完成"), val: `${doneCount}/${tasks.length}` },
+          ] as const).map((s) => (
+            <div
+              key={s.label}
+              className="flex items-center gap-1.5 rounded-md px-1.5 py-1"
+              style={{ background: "var(--th-bg-surface)", border: "1px solid var(--th-border)" }}
+            >
+              <span className="text-xs">{s.icon}</span>
+              <div className="min-w-0">
+                <div className="text-[8px] leading-tight truncate" style={{ color: "var(--th-text-muted)" }}>{s.label}</div>
+                <div
+                  className={`text-xs font-bold leading-tight ${s.highlight ? "text-blue-400" : ""}`}
+                  style={s.highlight ? undefined : { color: "var(--th-text-secondary)" }}
+                >
+                  {s.val}
+                </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
+      )}
+
+      {/* Department status */}
+      {!collapsed && (
+        <DepartmentStatus departments={departments} agents={agents} locale={locale} tr={tr} />
       )}
 
       {/* Status bar */}

@@ -58,3 +58,123 @@
 [data-theme="light"] .task-card-hover:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Modern UI Polish — Glassmorphism, better spacing, smooth transitions
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Glassmorphism for header ── */
+[data-theme="light"] .app-shell > div > header,
+[data-theme="light"] [class*="sticky"][class*="top-0"] {
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="dark"] .app-shell > div > header,
+[data-theme="dark"] [class*="sticky"][class*="top-0"] {
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border-bottom: 1px solid rgba(50, 50, 95, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Better sidebar styling ── */
+.sidebar-nav-item {
+  border-radius: 0.625rem !important;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.sidebar-nav-item.active {
+  font-weight: 600;
+}
+
+[data-theme="light"] .sidebar-nav-item.active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.06)) !important;
+  border-color: rgba(59, 130, 246, 0.15) !important;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
+}
+
+[data-theme="light"] .sidebar-nav-item.active::before {
+  background: linear-gradient(180deg, #3b82f6, #6366f1) !important;
+  width: 3px;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Improved header action buttons ── */
+[data-theme="light"] .header-action-btn-secondary {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-color: rgba(148, 163, 184, 0.2) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .header-action-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(59, 130, 246, 0.25) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+  color: #2563eb !important;
+}
+
+[data-theme="light"] .header-action-btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%) !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="light"] .header-action-btn-primary:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%) !important;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ── Card improvements ── */
+[data-theme="light"] .game-panel,
+[data-theme="light"] [class*="rounded"][class*="border"][class*="p-"] {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .game-panel:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+/* ── Smooth scroll behavior ── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Better selection colors ── */
+[data-theme="light"] ::selection {
+  background: rgba(59, 130, 246, 0.18);
+  color: inherit;
+}
+
+[data-theme="dark"] ::selection {
+  background: rgba(99, 102, 241, 0.3);
+  color: inherit;
+}
+
+/* ── Theme toggle polish ── */
+[data-theme="light"] .theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.7) !important;
+  border-color: rgba(148, 163, 184, 0.2) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[data-theme="light"] .theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12) !important;
+}
+
+/* ── Sidebar bottom section improved ── */
+.sidebar-dept-row {
+  border-radius: 0.5rem !important;
+}
+
+[data-theme="light"] .sidebar-dept-row:hover {
+  background: rgba(59, 130, 246, 0.06) !important;
+}

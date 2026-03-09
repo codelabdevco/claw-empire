@@ -3,7 +3,7 @@ import { Container, Graphics, Sprite, Text, TextStyle, type Application, type Te
 import type { Agent } from "../../types";
 import { localeName } from "../../i18n";
 import type { CallbackSnapshot, BreakAnimItem } from "./buildScene-types";
-import { BREAK_ROOM_H, TARGET_CHAR_H, type RoomTheme, type WallClockVisual } from "./model";
+import { BREAK_ROOM_H, OFFICE_FONT, TARGET_CHAR_H, type RoomTheme, type WallClockVisual } from "./model";
 import { BREAK_CHAT_MESSAGES, BREAK_SPOTS, LOCALE_TEXT, type SupportedLocale, pickLocale } from "./themes-locale";
 import {
   blendColor,
@@ -17,10 +17,12 @@ import {
   drawTiledFloor,
   drawTrashCan,
   drawWallClock,
+  drawWaterCooler,
+  drawWindow,
   hashStr,
 } from "./drawing-core";
-import { drawPlant } from "./drawing-furniture-a";
-import { drawCoffeeMachine, drawCoffeeTable, drawHighTable, drawSofa, drawVendingMachine } from "./drawing-furniture-b";
+import { drawPlant, drawWhiteboard } from "./drawing-furniture-a";
+import { drawBookshelf, drawCoffeeMachine, drawCoffeeTable, drawHighTable, drawSofa, drawVendingMachine } from "./drawing-furniture-b";
 
 interface BuildBreakRoomParams {
   app: Application;
@@ -31,6 +33,7 @@ interface BuildBreakRoomParams {
   breakTheme: RoomTheme;
   isDark: boolean;
   breakRoomY: number;
+  breakRoomH: number;
   OFFICE_W: number;
   cbRef: MutableRefObject<CallbackSnapshot>;
   breakAnimItemsRef: MutableRefObject<BreakAnimItem[]>;
@@ -50,6 +53,7 @@ export function buildBreakRoom({
   breakTheme,
   isDark,
   breakRoomY,
+  breakRoomH,
   OFFICE_W,
   cbRef,
   breakAnimItemsRef,
@@ -67,7 +71,7 @@ export function buildBreakRoom({
   const brx = 4;
   const bry = breakRoomY;
   const brw = OFFICE_W - 8;
-  const brh = BREAK_ROOM_H;
+  const brh = breakRoomH;
   breakRoomRectRef.current = { x: brx, y: bry, w: brw, h: brh };
 
   const brFloor = new Graphics();
@@ -80,9 +84,10 @@ export function buildBreakRoom({
   brBorder.roundRect(brx - 1, bry - 1, brw + 2, brh + 2, 4).stroke({ width: 1, color: breakTheme.accent, alpha: 0.25 });
   breakRoom.addChild(brBorder);
 
-  drawAmbientGlow(breakRoom, brx + brw / 2, bry + brh / 2, brw * 0.3, breakTheme.accent, 0.05);
-  drawCeilingLight(breakRoom, brx + brw / 3, bry + 6, breakTheme.accent);
-  drawCeilingLight(breakRoom, brx + (brw * 2) / 3, bry + 6, breakTheme.accent);
+  // ── Zone 1: Upper wall decorations ──
+  drawCeilingLight(breakRoom, brx + brw / 4, bry + 6, breakTheme.accent);
+  drawCeilingLight(breakRoom, brx + brw / 2, bry + 6, breakTheme.accent);
+  drawCeilingLight(breakRoom, brx + (brw * 3) / 4, bry + 6, breakTheme.accent);
   drawBunting(
     breakRoom,
     brx + 14,
@@ -92,22 +97,51 @@ export function buildBreakRoom({
     blendColor(0xdcb7bf, 0xffffff, 0.08),
     0.64,
   );
+  drawWindow(breakRoom, brx + brw * 0.2, bry + 14);
+  drawPictureFrame(breakRoom, brx + brw / 2 - 8, bry + 14);
+  drawWindow(breakRoom, brx + brw * 0.75, bry + 14);
+  wallClocksRef.current.push(drawWallClock(breakRoom, brx + brw / 2 + 30, bry + 18));
 
+  // ── Zone 2: Activity area (furniture matching BREAK_SPOTS) ──
   const furnitureBaseX = brx + 16;
+  const furnitureRightX = brx + brw - 16;
+
+  // Left wall — coffee station
   drawCoffeeMachine(breakRoom, furnitureBaseX, bry + 20);
   drawPlant(breakRoom, furnitureBaseX + 30, bry + 38, 1);
   drawSofa(breakRoom, furnitureBaseX + 50, bry + 56, 0xc89da6);
-  drawCoffeeTable(breakRoom, furnitureBaseX + 140, bry + 58);
 
-  const furnitureRightX = brx + brw - 16;
+  // Center — coffee table
+  drawCoffeeTable(breakRoom, brx + brw / 2 - 16, bry + 58);
+
+  // Right wall — vending & lounge
   drawVendingMachine(breakRoom, furnitureRightX - 26, bry + 20);
   drawPlant(breakRoom, furnitureRightX - 36, bry + 38, 2);
   drawSofa(breakRoom, furnitureRightX - 120, bry + 56, 0x91bcae);
   drawHighTable(breakRoom, furnitureRightX - 170, bry + 24);
 
-  drawPictureFrame(breakRoom, brx + brw / 2 - 8, bry + 14);
-  wallClocksRef.current.push(drawWallClock(breakRoom, brx + brw / 2 + 30, bry + 18));
-  drawTrashCan(breakRoom, furnitureBaseX + 24, bry + brh - 14);
+  // Main rug under seating area
+  drawRug(breakRoom, brx + brw / 2, bry + 65, brw * 0.55, 40, breakTheme.accent);
+
+  // ── Zone 3: Lower decoration area ──
+  const lowerY = bry + Math.max(100, brh * 0.5);
+  drawWaterCooler(breakRoom, furnitureBaseX + 4, lowerY);
+  drawBookshelf(breakRoom, furnitureBaseX + 40, lowerY);
+  drawPlant(breakRoom, brx + brw / 2 - 40, lowerY + 10, 3);
+  drawWhiteboard(breakRoom, brx + brw / 2 + 10, lowerY - 10);
+  drawBookshelf(breakRoom, furnitureRightX - 60, lowerY);
+  drawPlant(breakRoom, furnitureRightX - 10, lowerY + 10, 4);
+
+  // ── Zone 4: Bottom corners ──
+  drawPlant(breakRoom, furnitureBaseX, bry + brh - 22, 2);
+  drawTrashCan(breakRoom, furnitureBaseX + 28, bry + brh - 14);
+  drawTrashCan(breakRoom, furnitureRightX - 28, bry + brh - 14);
+  drawPlant(breakRoom, furnitureRightX - 8, bry + brh - 22, 1);
+
+  // ── Ambient lighting ──
+  drawAmbientGlow(breakRoom, brx + brw / 2, bry + 65, brw * 0.3, breakTheme.accent, 0.05);
+  drawAmbientGlow(breakRoom, brx + brw / 4, lowerY, brw * 0.15, breakTheme.accent, 0.03);
+  drawAmbientGlow(breakRoom, brx + (brw * 3) / 4, lowerY, brw * 0.15, breakTheme.accent, 0.03);
 
   const brSignW = 84;
   const brSignBg = new Graphics();
@@ -118,18 +152,16 @@ export function buildBreakRoom({
   const brSignTxt = new Text({
     text: pickLocale(activeLocale, LOCALE_TEXT.breakRoom),
     style: new TextStyle({
-      fontSize: 9,
+      fontSize: 11,
       fill: breakSignTextColor,
       fontWeight: "bold",
-      fontFamily: "system-ui, sans-serif",
-      dropShadow: isDark ? { alpha: 0.6, blur: 2, distance: 1, color: 0x000000 } : undefined,
+      fontFamily: OFFICE_FONT,
+      dropShadow: { alpha: isDark ? 0.6 : 0.35, blur: isDark ? 2 : 1, distance: 1, color: 0x000000 },
     }),
   });
   brSignTxt.anchor.set(0.5, 0.5);
   brSignTxt.position.set(brx + brw / 2, bry + 5);
   breakRoom.addChild(brSignTxt);
-
-  drawRug(breakRoom, brx + brw / 2, bry + brh / 2 + 10, brw * 0.5, brh * 0.45, breakTheme.accent);
 
   const steamContainer = new Container();
   breakRoom.addChild(steamContainer);
@@ -183,7 +215,7 @@ export function buildBreakRoom({
 
     const nameTag = new Text({
       text: localeName(activeLocale, agent),
-      style: new TextStyle({ fontSize: 6, fill: 0x4a3a2a, fontFamily: "system-ui, sans-serif" }),
+      style: new TextStyle({ fontSize: 8, fill: 0x2a1a0a, fontWeight: "bold", fontFamily: OFFICE_FONT }),
     });
     nameTag.anchor.set(0.5, 0);
     const ntW = nameTag.width + 4;
@@ -209,7 +241,7 @@ export function buildBreakRoom({
       const msg = chatPool[(seed + phase) % chatPool.length];
       const bubbleText = new Text({
         text: msg,
-        style: new TextStyle({ fontSize: 7, fill: 0x333333, fontFamily: "system-ui, sans-serif" }),
+        style: new TextStyle({ fontSize: 9, fill: 0x1a1a1a, fontFamily: OFFICE_FONT }),
       });
       bubbleText.anchor.set(0.5, 1);
       const bw = bubbleText.width + 10;

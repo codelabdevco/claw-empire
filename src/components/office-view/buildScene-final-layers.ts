@@ -1,7 +1,7 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { Container, Graphics, Sprite, Text, TextStyle, type Application, type Texture } from "pixi.js";
 import type { Task } from "../../types";
-import { CEO_SIZE, DESK_H, type Delivery } from "./model";
+import { CEO_SIZE, DESK_H, OFFICE_FONT, type Delivery } from "./model";
 
 interface BuildFinalLayersParams {
   app: Application;
@@ -69,7 +69,13 @@ export function buildFinalLayers({
   ceoCharacter.addChild(nameBadge);
   const nameText = new Text({
     text: "CEO",
-    style: new TextStyle({ fontSize: 7, fill: 0x5a4020, fontWeight: "bold", fontFamily: "monospace" }),
+    style: new TextStyle({
+      fontSize: 9,
+      fill: 0x3a2010,
+      fontWeight: "bold",
+      fontFamily: OFFICE_FONT,
+      dropShadow: { alpha: 0.15, distance: 1, blur: 1, color: 0xffffff },
+    }),
   });
   nameText.anchor.set(0.5, 0.5);
   nameText.position.set(0, CEO_SIZE / 2 + 6.5);

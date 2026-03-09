@@ -122,25 +122,42 @@ export function buildOfficeScene(context: BuildOfficeSceneContext): void {
   spriteMapRef.current = spriteMap;
 
   const OFFICE_W = officeWRef.current;
-  const deptCount = departments.length || 1;
+  const deptCount = departments.length;
   const baseRoomW = COLS_PER_ROW * SLOT_W + ROOM_PAD * 2;
   const roomGap = 12;
-  let gridCols = Math.min(deptCount, 3);
+  let gridCols = Math.max(1, Math.min(deptCount, 4));
   while (gridCols > 1 && gridCols * baseRoomW + (gridCols - 1) * roomGap + 24 > OFFICE_W) {
     gridCols -= 1;
   }
 
-  const gridRows = Math.ceil(deptCount / gridCols);
+  const gridRows = deptCount > 0 ? Math.ceil(deptCount / gridCols) : 0;
   const agentsPerDept = departments.map((dept) => agents.filter((agent) => agent.department_id === dept.id));
-  const maxAgents = Math.max(1, ...agentsPerDept.map((deptAgents) => deptAgents.length));
-  const agentRows = Math.ceil(maxAgents / COLS_PER_ROW);
 
+  const rowHeights: number[] = [];
+  for (let row = 0; row < gridRows; row++) {
+    let maxAgentsInRow = 1;
+    for (let col = 0; col < gridCols; col++) {
+      const deptIdx = row * gridCols + col;
+      if (deptIdx < deptCount && agentsPerDept[deptIdx]) {
+        maxAgentsInRow = Math.max(maxAgentsInRow, agentsPerDept[deptIdx].length);
+      }
+    }
+    const rowAgentRows = Math.ceil(maxAgentsInRow / COLS_PER_ROW);
+    rowHeights.push(Math.max(170, rowAgentRows * SLOT_H + 44));
+  }
+
+  const maxRoomW = baseRoomW + 48;
   const totalRoomSpace = OFFICE_W - 24 - (gridCols - 1) * roomGap;
-  const roomW = Math.max(baseRoomW, Math.floor(totalRoomSpace / gridCols));
-  const roomH = Math.max(170, agentRows * SLOT_H + 44);
+  const roomW = Math.min(maxRoomW, Math.max(baseRoomW, Math.floor(totalRoomSpace / gridCols)));
   const deptStartY = CEO_ZONE_H + HALLWAY_H;
-  const breakRoomY = deptStartY + gridRows * (roomH + roomGap) + BREAK_ROOM_GAP;
-  const totalH = breakRoomY + BREAK_ROOM_H + 30;
+  const deptTotalH = rowHeights.reduce((sum, h) => sum + h, 0) + gridRows * roomGap;
+  const breakRoomY = deptStartY + deptTotalH + BREAK_ROOM_GAP;
+  // Dynamic break room height: fill available viewport space
+  const canvasEl = app.canvas as HTMLCanvasElement;
+  const containerTop = canvasEl.parentElement?.getBoundingClientRect().top ?? 0;
+  const availableH = Math.max(600, window.innerHeight - containerTop);
+  const breakRoomH = Math.max(BREAK_ROOM_H, availableH - breakRoomY - 30);
+  const totalH = breakRoomY + breakRoomH + 30;
   const roomStartX = (OFFICE_W - (gridCols * roomW + (gridCols - 1) * roomGap)) / 2;
   totalHRef.current = totalH;
 
@@ -177,10 +194,9 @@ export function buildOfficeScene(context: BuildOfficeSceneContext): void {
     gridCols,
     roomStartX,
     roomW,
-    roomH,
+    rowHeights,
     roomGap,
     deptStartY,
-    agentRows,
     spriteMap,
     cbRef,
     roomRectsRef,
@@ -204,6 +220,7 @@ export function buildOfficeScene(context: BuildOfficeSceneContext): void {
     breakTheme,
     isDark,
     breakRoomY,
+    breakRoomH,
     OFFICE_W,
     cbRef,
     breakAnimItemsRef,

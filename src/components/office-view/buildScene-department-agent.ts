@@ -8,6 +8,7 @@ import {
   SUB_CLONE_FIREWORK_INTERVAL,
   TARGET_CHAR_H,
   type SubCloneBurstParticle,
+  OFFICE_FONT,
   emitSubCloneFireworkBurst,
   emitSubCloneSmokeBurst,
 } from "./model";
@@ -137,9 +138,9 @@ export function renderDeskAgentAndSubClones({
     const bubbleText = new Text({
       text: `💬 ${txt}`,
       style: new TextStyle({
-        fontSize: 6.5,
-        fill: 0x333333,
-        fontFamily: "system-ui, sans-serif",
+        fontSize: 8,
+        fill: 0x1a1a1a,
+        fontFamily: OFFICE_FONT,
         wordWrap: true,
         wordWrapWidth: 85,
       }),
@@ -224,7 +225,7 @@ export function renderDeskAgentAndSubClones({
       room.addChild(moreBg);
       const moreTxt = new Text({
         text: `+${remain}`,
-        style: new TextStyle({ fontSize: 6.5, fill: 0xe2e8f8, fontWeight: "bold", fontFamily: "monospace" }),
+        style: new TextStyle({ fontSize: 8, fill: 0xe2e8f8, fontWeight: "bold", fontFamily: OFFICE_FONT }),
       });
       moreTxt.anchor.set(0.5, 0.5);
       moreTxt.position.set(ax + 27, deskY - 13);
